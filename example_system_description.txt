@@ -1,0 +1,15 @@
+NeuroCardioWatch is a hospital monitoring solution for continuous acquisition and analysis of EEG and ECG signals.
+
+A patient wears EEG/ECG sensors during monitoring. Sensors transmit signals to a bedside Patient Monitoring Device. The Patient Monitoring Device forwards signals to the Streaming Gateway over the hospital network, and the Streaming Gateway streams signals to the Real-Time Analytics Backend.
+
+The Real-Time Analytics Backend analyzes EEG/ECG streams to detect abnormal events and generates alert events with associated metadata. It triggers the Notification Service, which delivers alerts to nurses and doctors according to configured escalation rules (e.g., time-to-acknowledge thresholds and on-call fallback). Nurses and doctors review alert details and trends in the Clinical Monitoring Dashboard and acknowledge/annotate alerts.
+
+The Real-Time Analytics Backend stores analysis summaries and alert metadata in the Electronic Health Record (EHR) system. Bedside devices (EEG/ECG sensors and the Patient Monitoring Device) do not write to the EHR; EHR writes occur only via the backend. The dashboard displays clinical data and does not bypass backend-controlled authorization when accessing or exporting EHR-relevant summaries.
+
+Users of the Clinical Monitoring Dashboard authenticate via the Hospital Identity Provider. The Real-Time Analytics Backend authenticates via the Hospital Identity Provider when accessing protected resources and when writing to the EHR. Role-based access control (RBAC) applies to patient, nurse, doctor, and IT administrator roles. IT administrators manage system configuration and user role assignments via the Clinical Monitoring Dashboard, and all security-relevant actions (role changes, data access, alert acknowledgements, exports) are audit-logged.
+
+Constraints: The system must comply with hospital data protection policies and applicable medical data regulations. Data in transit between devices and services must be encrypted and integrity-protected.
+
+Assumptions: The hospital network provides reliable connectivity and sufficient bandwidth for continuous streaming. Sensors are correctly placed and remain attached during monitoring. Clinicians respond to critical alerts within an acceptable time window.
+
+Risks: False positive alerts may lead to alarm fatigue. False negatives may cause missed critical events. Network outages may interrupt monitoring and delay alerts. Privacy violations may occur if access controls are misconfigured or data is transmitted insecurely. Delayed response to alerts may cause patient harm.

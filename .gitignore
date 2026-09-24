@@ -1,0 +1,17 @@
+# Secrets
+UPB_AI_GATEWAY_KEY.txt
+.env
+
+# Generated app output
+output/
+lib/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
