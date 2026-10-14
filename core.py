@@ -220,7 +220,7 @@ def canonicalize_extraction(result: dict) -> ContextGraph:
     return graph
 
 
-def build_context_graph(doc_text: Union[str, List[Tuple[str, str]]]) -> Tuple[dict, ContextGraph]:
+def build_context_graph(doc_text: Union[str, List[Tuple[str, str]]], model: str = None) -> Tuple[dict, ContextGraph]:
     """
     doc_text: either a single input string (existing behavior, unchanged),
     or a list of (document_label, document_text) pairs for multi-document
@@ -229,11 +229,16 @@ def build_context_graph(doc_text: Union[str, List[Tuple[str, str]]]) -> Tuple[di
     identically -- retrieval only activates once the combined word count
     passes retrieval.SIZE_THRESHOLD_WORDS (see retrieval.py), well above
     any of this project's existing single-document eval cases.
+
+    model: optional override of llm_engine.MODEL_NAME, passed straight
+    through to ask_chatgpt. None (the default) preserves existing behavior
+    for every call site before Phase 6; Phase 6's model-comparison harness
+    is the only caller that sets it.
     """
     documents = [("input", doc_text)] if isinstance(doc_text, str) else doc_text
     selected_text, retrieval_stats = retrieve_relevant_chunks(documents)
 
-    result = ask_chatgpt(selected_text)
+    result = ask_chatgpt(selected_text) if model is None else ask_chatgpt(selected_text, model=model)
     result["_retrieval_stats"] = retrieval_stats
     graph = canonicalize_extraction(result)
     return result, graph

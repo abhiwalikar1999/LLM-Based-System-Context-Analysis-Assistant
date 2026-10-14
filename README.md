@@ -63,6 +63,7 @@ Open `http://127.0.0.1:8000`, paste text and/or upload one or more `.txt` files 
 - Relationship-label normalization against a canonical verb set, built from labels actually observed in practice rather than guessed
 - Multi-document input with retrieval — upload several files at once; each is chunked, embedded, and the most relevant chunks per extraction category are selected via cosine similarity rather than concatenating everything into one prompt
 - An agentic self-check/repair loop (LangGraph) that reviews its own extraction against the source text and corrects specific, named issues — available as a standalone capability (`agentic.py`), measured, and deliberately not wired in as the default path (see below for the cost/quality tradeoff that decision was based on)
+- A model-comparison harness (`run_evals_model_comparison.py`) that swaps the extraction model and re-runs the full eval suite, measuring quality, latency, and token cost side by side — see below for a finding it caught that a quick manual test completely missed
 
 ## Evaluation
 
@@ -109,4 +110,25 @@ Run it yourself:
 
 ```bash
 python run_evals_agentic.py
+```
+
+## Model comparison
+
+`run_evals_model_comparison.py` swaps the extraction model and re-runs the full eval suite — both models fresh, back to back, under the same conditions — to compare quality, latency, and token cost together rather than picking a model on vibes.
+
+Compared the default model against a materially smaller one on the same gateway (isolating "which model" from "which provider"):
+
+| Metric | Default (~30B-class) | Smaller (8B) |
+|---|---|---|
+| Entity F1 | 0.863 | **0.000** |
+| Relationship F1 | 0.809 | **0.000** |
+| Avg. latency | 42.4s | 9.2s (4.6× faster) |
+| Avg. tokens | 1831 | 1861 (about equal) |
+
+On paper the smaller model looks like a clean win — 4.6× faster at roughly equal token cost. It isn't: it scored 0.00 on the core extraction task in **every single one of 6 test cases**. Didn't take that number at face value — inspecting the raw output showed the model's `label` field was literally the string `"component"`/`"actor"` (the type name, not an entity name) every time, which the pipeline's own deduplication collapses into one placeholder node per type instead of the real 8–15 entities expected. Free-text fields (risks, assumptions) stayed accurate throughout, isolating the failure to the structured entity/relationship schema specifically — and notably, this same model had handled a single trivial test sentence correctly earlier, so the failure is tied to task complexity, not a blanket incapability. A quick manual spot-check would have missed this entirely; only the eval harness caught it. The lesson: a faster, cheaper-looking model is worthless if it fails the actual task, and knowing that requires an eval harness, not a vibe check.
+
+Run it yourself:
+
+```bash
+python run_evals_model_comparison.py
 ```

@@ -135,7 +135,7 @@ def _get_key() -> str:
     return key
 
 
-def ask_chatgpt(text: str) -> dict:
+def ask_chatgpt(text: str, model: str = MODEL_NAME) -> dict:
     """
     Extracts entities/relationships/risks/assumptions from `text` using
     strict JSON-schema structured output (ContextExtraction), with a
@@ -143,6 +143,9 @@ def ask_chatgpt(text: str) -> dict:
     referential-integrity check, the model's own prior (invalid) output and
     the specific error are fed back so it can correct itself, up to
     MAX_ATTEMPTS total tries.
+
+    `model` defaults to this module's MODEL_NAME (unchanged behavior for
+    every existing call site); Phase 6 overrides it for model comparison.
     """
     key = _get_key()
     client = OpenAI(api_key=key, base_url=BASE_URL)
@@ -158,7 +161,7 @@ def ask_chatgpt(text: str) -> dict:
     for attempt in range(1, MAX_ATTEMPTS + 1):
         try:
             response = client.beta.chat.completions.parse(
-                model=MODEL_NAME,
+                model=model,
                 messages=messages,
                 response_format=ContextExtraction,
                 temperature=0,
@@ -169,7 +172,17 @@ def ask_chatgpt(text: str) -> dict:
             if message.refusal:
                 raise ValueError(f"Model refused to answer: {message.refusal}")
 
-            return message.parsed.model_dump()
+            parsed = message.parsed.model_dump()
+            if getattr(response, "usage", None) is not None:
+                # Token usage as a cost proxy (Phase 6): this gateway doesn't
+                # expose per-request $ billing, so token counts are the most
+                # precise cost signal actually available.
+                parsed["_usage"] = {
+                    "prompt_tokens": response.usage.prompt_tokens,
+                    "completion_tokens": response.usage.completion_tokens,
+                    "total_tokens": response.usage.total_tokens,
+                }
+            return parsed
 
         except Exception as e:
             last_error = e

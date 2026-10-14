@@ -1,0 +1,1576 @@
+{
+  "current": {
+    "model_name": "gwdg.qwen3-30b-a3b-instruct-2507",
+    "aggregate": {
+      "entity_precision": 0.9652777777777778,
+      "entity_recall": 0.782996632996633,
+      "entity_f1": 0.8633351488743646,
+      "relationship_precision": 0.7800653594771242,
+      "relationship_recall": 0.85,
+      "relationship_f1": 0.8089548910740963,
+      "risk_coverage": 0.9444444444444445,
+      "assumption_coverage": 1.0,
+      "evidence_grounded_rate": 1.0,
+      "relationship_label_normalized_rate": 0.5140522875816994,
+      "avg_elapsed_seconds": 42.375094850858055,
+      "avg_total_tokens": 1830.6666666666667,
+      "cases_run": 6,
+      "cases_failed": 0
+    },
+    "results": [
+      {
+        "case_id": "healthcare_neurocardiowatch",
+        "domain": "healthcare (reference scenario)",
+        "elapsed_seconds": 46.15183711051941,
+        "usage": {
+          "prompt_tokens": 590,
+          "completion_tokens": 1403,
+          "total_tokens": 1993
+        },
+        "entity_scores": {
+          "precision": 1.0,
+          "recall": 0.9090909090909091,
+          "f1": 0.9523809523809523,
+          "matched": 10,
+          "predicted_count": 10,
+          "gt_count": 11
+        },
+        "relationship_scores": {
+          "precision": 0.8,
+          "recall": 1.0,
+          "f1": 0.888888888888889,
+          "matched": 8,
+          "predicted_count": 10,
+          "gt_count": 8
+        },
+        "risk_coverage": {
+          "recall": 1.0,
+          "covered": 2,
+          "gt_count": 2
+        },
+        "assumption_coverage": {
+          "recall": 1.0,
+          "covered": 2,
+          "gt_count": 2
+        },
+        "evidence_grounding": {
+          "grounded_rate": 1.0,
+          "grounded": 24,
+          "non_empty": 24,
+          "total": 24
+        },
+        "relationship_normalization": {
+          "normalized_rate": 1.0,
+          "normalized": 10,
+          "total": 10
+        },
+        "predicted_nodes": [
+          {
+            "id": "a03ef89c1a43",
+            "label": "EEG/ECG sensors",
+            "type": "component"
+          },
+          {
+            "id": "55e52d06e8b4",
+            "label": "Patient Monitoring Device",
+            "type": "component"
+          },
+          {
+            "id": "134aae120207",
+            "label": "Streaming Gateway",
+            "type": "component"
+          },
+          {
+            "id": "bbe619e26bb3",
+            "label": "Real-Time Analytics Backend",
+            "type": "component"
+          },
+          {
+            "id": "cfb41dfd4764",
+            "label": "Notification Service",
+            "type": "component"
+          },
+          {
+            "id": "e223cc1275a5",
+            "label": "Clinical Monitoring Dashboard",
+            "type": "component"
+          },
+          {
+            "id": "a3673979b1c1",
+            "label": "Electronic Health Record (EHR) system",
+            "type": "external_system"
+          },
+          {
+            "id": "bd2ac696c4b6",
+            "label": "Hospital Identity Provider",
+            "type": "external_system"
+          },
+          {
+            "id": "6937c850e9b8",
+            "label": "nurses",
+            "type": "actor"
+          },
+          {
+            "id": "4f1e23b608e6",
+            "label": "doctors",
+            "type": "actor"
+          }
+        ],
+        "predicted_edges": [
+          {
+            "source": "a03ef89c1a43",
+            "target": "55e52d06e8b4",
+            "label": "sends_to"
+          },
+          {
+            "source": "55e52d06e8b4",
+            "target": "134aae120207",
+            "label": "sends_to"
+          },
+          {
+            "source": "134aae120207",
+            "target": "bbe619e26bb3",
+            "label": "sends_to"
+          },
+          {
+            "source": "bbe619e26bb3",
+            "target": "cfb41dfd4764",
+            "label": "triggers"
+          },
+          {
+            "source": "cfb41dfd4764",
+            "target": "6937c850e9b8",
+            "label": "sends_to"
+          },
+          {
+            "source": "cfb41dfd4764",
+            "target": "4f1e23b608e6",
+            "label": "sends_to"
+          },
+          {
+            "source": "bbe619e26bb3",
+            "target": "a3673979b1c1",
+            "label": "stores_in"
+          },
+          {
+            "source": "e223cc1275a5",
+            "target": "6937c850e9b8",
+            "label": "sends_to"
+          },
+          {
+            "source": "e223cc1275a5",
+            "target": "4f1e23b608e6",
+            "label": "sends_to"
+          },
+          {
+            "source": "e223cc1275a5",
+            "target": "bd2ac696c4b6",
+            "label": "authenticates_via"
+          }
+        ],
+        "predicted_risks": [
+          "False positive alerts may lead to alarm fatigue.",
+          "Network outages may interrupt monitoring and delay alerts."
+        ],
+        "predicted_assumptions": [
+          "The hospital network provides reliable connectivity.",
+          "Clinicians respond to critical alerts within an acceptable time window."
+        ]
+      },
+      {
+        "case_id": "ecommerce_bookstore",
+        "domain": "e-commerce / retail",
+        "elapsed_seconds": 5.572647333145142,
+        "usage": {
+          "prompt_tokens": 584,
+          "completion_tokens": 1040,
+          "total_tokens": 1624
+        },
+        "entity_scores": {
+          "precision": 1.0,
+          "recall": 0.7777777777777778,
+          "f1": 0.8750000000000001,
+          "matched": 7,
+          "predicted_count": 7,
+          "gt_count": 9
+        },
+        "relationship_scores": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "matched": 6,
+          "predicted_count": 6,
+          "gt_count": 6
+        },
+        "risk_coverage": {
+          "recall": 1.0,
+          "covered": 2,
+          "gt_count": 2
+        },
+        "assumption_coverage": {
+          "recall": 1.0,
+          "covered": 2,
+          "gt_count": 2
+        },
+        "evidence_grounding": {
+          "grounded_rate": 1.0,
+          "grounded": 17,
+          "non_empty": 17,
+          "total": 17
+        },
+        "relationship_normalization": {
+          "normalized_rate": 0.8333333333333334,
+          "normalized": 5,
+          "total": 6
+        },
+        "predicted_nodes": [
+          {
+            "id": "dca1da56c173",
+            "label": "Web Storefront",
+            "type": "component"
+          },
+          {
+            "id": "8e658e02893a",
+            "label": "Order Service",
+            "type": "component"
+          },
+          {
+            "id": "f1ddeffb86a5",
+            "label": "Payment Gateway",
+            "type": "external_system"
+          },
+          {
+            "id": "a10fce101960",
+            "label": "Inventory Service",
+            "type": "component"
+          },
+          {
+            "id": "cfc2fe8c09d7",
+            "label": "Inventory Database",
+            "type": "component"
+          },
+          {
+            "id": "043ea2450713",
+            "label": "Shipping Partner",
+            "type": "external_system"
+          },
+          {
+            "id": "27b7c2f9c217",
+            "label": "Admin Portal",
+            "type": "component"
+          }
+        ],
+        "predicted_edges": [
+          {
+            "source": "dca1da56c173",
+            "target": "8e658e02893a",
+            "label": "sends_to"
+          },
+          {
+            "source": "8e658e02893a",
+            "target": "f1ddeffb86a5",
+            "label": "calls"
+          },
+          {
+            "source": "8e658e02893a",
+            "target": "a10fce101960",
+            "label": "triggers"
+          },
+          {
+            "source": "a10fce101960",
+            "target": "cfc2fe8c09d7",
+            "label": "tracks"
+          },
+          {
+            "source": "8e658e02893a",
+            "target": "043ea2450713",
+            "label": "sends_to"
+          },
+          {
+            "source": "27b7c2f9c217",
+            "target": "cfc2fe8c09d7",
+            "label": "stores_in"
+          }
+        ],
+        "predicted_risks": [
+          "The Payment Gateway may become unavailable, blocking all checkouts.",
+          "The Inventory Database may show stock as available when it has actually been oversold due to concurrent orders."
+        ],
+        "predicted_assumptions": [
+          "The Payment Gateway maintains PCI-DSS compliance.",
+          "The Shipping Partner's API remains available during peak sales periods."
+        ]
+      },
+      {
+        "case_id": "smart_home_thermostat",
+        "domain": "IoT / smart home",
+        "elapsed_seconds": 11.504456758499146,
+        "usage": {
+          "prompt_tokens": 583,
+          "completion_tokens": 1082,
+          "total_tokens": 1665
+        },
+        "entity_scores": {
+          "precision": 1.0,
+          "recall": 0.75,
+          "f1": 0.8571428571428571,
+          "matched": 6,
+          "predicted_count": 6,
+          "gt_count": 8
+        },
+        "relationship_scores": {
+          "precision": 0.8333333333333334,
+          "recall": 1.0,
+          "f1": 0.9090909090909091,
+          "matched": 5,
+          "predicted_count": 6,
+          "gt_count": 5
+        },
+        "risk_coverage": {
+          "recall": 1.0,
+          "covered": 2,
+          "gt_count": 2
+        },
+        "assumption_coverage": {
+          "recall": 1.0,
+          "covered": 2,
+          "gt_count": 2
+        },
+        "evidence_grounding": {
+          "grounded_rate": 1.0,
+          "grounded": 16,
+          "non_empty": 16,
+          "total": 16
+        },
+        "relationship_normalization": {
+          "normalized_rate": 0.3333333333333333,
+          "normalized": 2,
+          "total": 6
+        },
+        "predicted_nodes": [
+          {
+            "id": "60bdc8832632",
+            "label": "EcoTherm Mobile App",
+            "type": "component"
+          },
+          {
+            "id": "5448a2d90717",
+            "label": "Cloud Backend",
+            "type": "component"
+          },
+          {
+            "id": "caa9f9efb398",
+            "label": "Thermostat Device",
+            "type": "component"
+          },
+          {
+            "id": "4eba48497d33",
+            "label": "HVAC Unit",
+            "type": "component"
+          },
+          {
+            "id": "a3e43f121961",
+            "label": "Weather API",
+            "type": "external_system"
+          },
+          {
+            "id": "c782a3f8bcce",
+            "label": "Installer Portal",
+            "type": "component"
+          }
+        ],
+        "predicted_edges": [
+          {
+            "source": "60bdc8832632",
+            "target": "5448a2d90717",
+            "label": "communicates_with"
+          },
+          {
+            "source": "caa9f9efb398",
+            "target": "5448a2d90717",
+            "label": "sends_data_to"
+          },
+          {
+            "source": "5448a2d90717",
+            "target": "caa9f9efb398",
+            "label": "sends_commands_to"
+          },
+          {
+            "source": "caa9f9efb398",
+            "target": "4eba48497d33",
+            "label": "controls"
+          },
+          {
+            "source": "5448a2d90717",
+            "target": "a3e43f121961",
+            "label": "calls"
+          },
+          {
+            "source": "c782a3f8bcce",
+            "target": "5448a2d90717",
+            "label": "connects_to"
+          }
+        ],
+        "predicted_risks": [
+          "A Wi-Fi outage at the home prevents the Mobile App from controlling the Thermostat Device remotely.",
+          "Inaccurate data from the Weather API can cause the system to schedule heating or cooling at the wrong times."
+        ],
+        "predicted_assumptions": [
+          "The home has a stable Wi-Fi connection.",
+          "The HVAC Unit is compatible with the Thermostat Device's control protocol."
+        ]
+      },
+      {
+        "case_id": "fintech_p2p_payments",
+        "domain": "fintech / payments",
+        "elapsed_seconds": 5.199671506881714,
+        "usage": {
+          "prompt_tokens": 561,
+          "completion_tokens": 852,
+          "total_tokens": 1413
+        },
+        "entity_scores": {
+          "precision": 1.0,
+          "recall": 0.75,
+          "f1": 0.8571428571428571,
+          "matched": 6,
+          "predicted_count": 6,
+          "gt_count": 8
+        },
+        "relationship_scores": {
+          "precision": 0.6,
+          "recall": 0.6,
+          "f1": 0.6,
+          "matched": 3,
+          "predicted_count": 5,
+          "gt_count": 5
+        },
+        "risk_coverage": {
+          "recall": 1.0,
+          "covered": 2,
+          "gt_count": 2
+        },
+        "assumption_coverage": {
+          "recall": 1.0,
+          "covered": 2,
+          "gt_count": 2
+        },
+        "evidence_grounding": {
+          "grounded_rate": 1.0,
+          "grounded": 15,
+          "non_empty": 15,
+          "total": 15
+        },
+        "relationship_normalization": {
+          "normalized_rate": 0.4,
+          "normalized": 2,
+          "total": 5
+        },
+        "predicted_nodes": [
+          {
+            "id": "e8527a4ae69d",
+            "label": "PayLink Mobile App",
+            "type": "component"
+          },
+          {
+            "id": "36f42f48e269",
+            "label": "Transaction Service",
+            "type": "component"
+          },
+          {
+            "id": "0bb6d7eac544",
+            "label": "KYC Provider",
+            "type": "external_system"
+          },
+          {
+            "id": "4042b5925888",
+            "label": "Banking Rail",
+            "type": "external_system"
+          },
+          {
+            "id": "28cb4f95be36",
+            "label": "Fraud Detection Service",
+            "type": "component"
+          },
+          {
+            "id": "dc2c58586995",
+            "label": "Compliance Dashboard",
+            "type": "component"
+          }
+        ],
+        "predicted_edges": [
+          {
+            "source": "e8527a4ae69d",
+            "target": "36f42f48e269",
+            "label": "sends_transfer_requests"
+          },
+          {
+            "source": "36f42f48e269",
+            "target": "0bb6d7eac544",
+            "label": "calls"
+          },
+          {
+            "source": "36f42f48e269",
+            "target": "4042b5925888",
+            "label": "moves_funds_via"
+          },
+          {
+            "source": "36f42f48e269",
+            "target": "28cb4f95be36",
+            "label": "monitors"
+          },
+          {
+            "source": "28cb4f95be36",
+            "target": "dc2c58586995",
+            "label": "reviews"
+          }
+        ],
+        "predicted_risks": [
+          "The Fraud Detection Service may fail to catch a fraudulent transfer (a false negative), allowing money to be stolen.",
+          "An outage of the Banking Rail delays settlement of transfers."
+        ],
+        "predicted_assumptions": [
+          "The KYC Provider's identity data is accurate and up to date.",
+          "Users have a verified bank account linked to their PayLink profile."
+        ]
+      },
+      {
+        "case_id": "logistics_fleet_tracking",
+        "domain": "logistics / supply chain",
+        "elapsed_seconds": 26.4879150390625,
+        "usage": {
+          "prompt_tokens": 549,
+          "completion_tokens": 876,
+          "total_tokens": 1425
+        },
+        "entity_scores": {
+          "precision": 0.875,
+          "recall": 0.7777777777777778,
+          "f1": 0.823529411764706,
+          "matched": 7,
+          "predicted_count": 8,
+          "gt_count": 9
+        },
+        "relationship_scores": {
+          "precision": 0.8,
+          "recall": 0.6666666666666666,
+          "f1": 0.7272727272727272,
+          "matched": 4,
+          "predicted_count": 5,
+          "gt_count": 6
+        },
+        "risk_coverage": {
+          "recall": 1.0,
+          "covered": 2,
+          "gt_count": 2
+        },
+        "assumption_coverage": {
+          "recall": 1.0,
+          "covered": 2,
+          "gt_count": 2
+        },
+        "evidence_grounding": {
+          "grounded_rate": 1.0,
+          "grounded": 17,
+          "non_empty": 17,
+          "total": 17
+        },
+        "relationship_normalization": {
+          "normalized_rate": 0.4,
+          "normalized": 2,
+          "total": 5
+        },
+        "predicted_nodes": [
+          {
+            "id": "268a3123a4a4",
+            "label": "FleetTrace",
+            "type": "component"
+          },
+          {
+            "id": "fcb3e6b8ba4e",
+            "label": "Driver App",
+            "type": "component"
+          },
+          {
+            "id": "0cb30dd669d9",
+            "label": "Tracking Backend",
+            "type": "component"
+          },
+          {
+            "id": "5ae3c03bda3b",
+            "label": "Route Database",
+            "type": "component"
+          },
+          {
+            "id": "4067a80f7f9b",
+            "label": "Dispatch Dashboard",
+            "type": "component"
+          },
+          {
+            "id": "cfb41dfd4764",
+            "label": "Notification Service",
+            "type": "component"
+          },
+          {
+            "id": "7ee2691d6676",
+            "label": "Traffic API",
+            "type": "external_system"
+          },
+          {
+            "id": "45d68eed8fe4",
+            "label": "drivers",
+            "type": "actor"
+          }
+        ],
+        "predicted_edges": [
+          {
+            "source": "fcb3e6b8ba4e",
+            "target": "0cb30dd669d9",
+            "label": "sends"
+          },
+          {
+            "source": "0cb30dd669d9",
+            "target": "5ae3c03bda3b",
+            "label": "stores_in"
+          },
+          {
+            "source": "0cb30dd669d9",
+            "target": "4067a80f7f9b",
+            "label": "provides_data_to"
+          },
+          {
+            "source": "0cb30dd669d9",
+            "target": "cfb41dfd4764",
+            "label": "sends_alert_to"
+          },
+          {
+            "source": "0cb30dd669d9",
+            "target": "7ee2691d6676",
+            "label": "calls"
+          }
+        ],
+        "predicted_risks": [
+          "GPS signal loss in tunnels or dense urban areas causes inaccurate vehicle tracking.",
+          "An outage of the Traffic API leads to incorrect estimated delivery times shown to customers."
+        ],
+        "predicted_assumptions": [
+          "Drivers' phones maintain continuous mobile data connectivity.",
+          "All vehicles are equipped with GPS hardware compatible with the Driver App."
+        ]
+      },
+      {
+        "case_id": "rideshare_platform_multidoc",
+        "domain": "ride-sharing (multi-document)",
+        "elapsed_seconds": 159.3340413570404,
+        "usage": {
+          "prompt_tokens": 908,
+          "completion_tokens": 1956,
+          "total_tokens": 2864
+        },
+        "entity_scores": {
+          "precision": 0.9166666666666666,
+          "recall": 0.7333333333333333,
+          "f1": 0.8148148148148148,
+          "matched": 11,
+          "predicted_count": 12,
+          "gt_count": 15
+        },
+        "relationship_scores": {
+          "precision": 0.6470588235294118,
+          "recall": 0.8333333333333334,
+          "f1": 0.728476821192053,
+          "matched": 10,
+          "predicted_count": 17,
+          "gt_count": 12
+        },
+        "risk_coverage": {
+          "recall": 0.6666666666666666,
+          "covered": 2,
+          "gt_count": 3
+        },
+        "assumption_coverage": {
+          "recall": 1.0,
+          "covered": 2,
+          "gt_count": 2
+        },
+        "evidence_grounding": {
+          "grounded_rate": 1.0,
+          "grounded": 34,
+          "non_empty": 34,
+          "total": 34
+        },
+        "relationship_normalization": {
+          "normalized_rate": 0.11764705882352941,
+          "normalized": 2,
+          "total": 17
+        },
+        "predicted_nodes": [
+          {
+            "id": "6524a0765b50",
+            "label": "RideFlow Rider App",
+            "type": "component"
+          },
+          {
+            "id": "6e122e1c1cb6",
+            "label": "Matching Service",
+            "type": "component"
+          },
+          {
+            "id": "abd955f468af",
+            "label": "RideFlow Driver App",
+            "type": "component"
+          },
+          {
+            "id": "6294af943b30",
+            "label": "Trip Tracking Service",
+            "type": "component"
+          },
+          {
+            "id": "6fe6c83fb600",
+            "label": "Rating Service",
+            "type": "component"
+          },
+          {
+            "id": "6b7a1d926998",
+            "label": "Billing Service",
+            "type": "component"
+          },
+          {
+            "id": "9abd9e3cff4b",
+            "label": "Payment Processor",
+            "type": "external_system"
+          },
+          {
+            "id": "6492de0f7460",
+            "label": "Driver Verification Service",
+            "type": "external_system"
+          },
+          {
+            "id": "961c1a23ba82",
+            "label": "Trip History Database",
+            "type": "component"
+          },
+          {
+            "id": "30db907fecb9",
+            "label": "Support Console",
+            "type": "component"
+          },
+          {
+            "id": "8f9b08e6c9f9",
+            "label": "Admin Dashboard",
+            "type": "component"
+          },
+          {
+            "id": "60b65fec8366",
+            "label": "Audit Log",
+            "type": "component"
+          }
+        ],
+        "predicted_edges": [
+          {
+            "source": "6524a0765b50",
+            "target": "6e122e1c1cb6",
+            "label": "sends_trip_request"
+          },
+          {
+            "source": "6e122e1c1cb6",
+            "target": "abd955f468af",
+            "label": "triggers"
+          },
+          {
+            "source": "abd955f468af",
+            "target": "6294af943b30",
+            "label": "sends_gps_updates"
+          },
+          {
+            "source": "6294af943b30",
+            "target": "6524a0765b50",
+            "label": "polls_for_position"
+          },
+          {
+            "source": "6294af943b30",
+            "target": "abd955f468af",
+            "label": "polls_for_position"
+          },
+          {
+            "source": "6524a0765b50",
+            "target": "6fe6c83fb600",
+            "label": "sends_rating"
+          },
+          {
+            "source": "6fe6c83fb600",
+            "target": "6e122e1c1cb6",
+            "label": "provides_aggregated_ratings"
+          },
+          {
+            "source": "abd955f468af",
+            "target": "6b7a1d926998",
+            "label": "reports_trip_details"
+          },
+          {
+            "source": "6b7a1d926998",
+            "target": "9abd9e3cff4b",
+            "label": "charges_rider"
+          },
+          {
+            "source": "6b7a1d926998",
+            "target": "9abd9e3cff4b",
+            "label": "pays_driver_earnings"
+          },
+          {
+            "source": "6294af943b30",
+            "target": "961c1a23ba82",
+            "label": "stores_trip_routes"
+          },
+          {
+            "source": "30db907fecb9",
+            "target": "961c1a23ba82",
+            "label": "views_trip_details"
+          },
+          {
+            "source": "30db907fecb9",
+            "target": "6b7a1d926998",
+            "label": "issues_refund"
+          },
+          {
+            "source": "8f9b08e6c9f9",
+            "target": "6e122e1c1cb6",
+            "label": "configures_matching_rules"
+          },
+          {
+            "source": "8f9b08e6c9f9",
+            "target": "6b7a1d926998",
+            "label": "configures_pricing_rules"
+          },
+          {
+            "source": "8f9b08e6c9f9",
+            "target": "60b65fec8366",
+            "label": "records_actions"
+          },
+          {
+            "source": "6e122e1c1cb6",
+            "target": "6492de0f7460",
+            "label": "calls"
+          }
+        ],
+        "predicted_risks": [
+          "The Matching Service could match a rider with a driver who has failed a background check, if the Driver Verification Service's data is not refreshed in time",
+          "GPS signal loss in dense urban areas or tunnels can cause the Trip Tracking Service to show an inaccurate vehicle position to riders during a trip",
+          "If the Payment Processor experiences downtime, trip billing may be delayed, which directly affects driver payouts and rider trust in the platform"
+        ],
+        "predicted_assumptions": [
+          "Drivers carry a smartphone with continuous mobile data access throughout a trip",
+          "The Driver Verification Service's background-check data is accurate and updated on a regular schedule"
+        ]
+      }
+    ],
+    "failures": []
+  },
+  "alternative": {
+    "model_name": "gwdg.meta-llama-3.1-8b-instruct",
+    "aggregate": {
+      "entity_precision": 0.0,
+      "entity_recall": 0.0,
+      "entity_f1": 0.0,
+      "relationship_precision": 0.0,
+      "relationship_recall": 0.0,
+      "relationship_f1": 0.0,
+      "risk_coverage": 0.9444444444444445,
+      "assumption_coverage": 1.0,
+      "evidence_grounded_rate": 1.0,
+      "relationship_label_normalized_rate": 0.19719169719169719,
+      "avg_elapsed_seconds": 9.151418089866638,
+      "avg_total_tokens": 1861.3333333333333,
+      "cases_run": 6,
+      "cases_failed": 0
+    },
+    "results": [
+      {
+        "case_id": "healthcare_neurocardiowatch",
+        "domain": "healthcare (reference scenario)",
+        "elapsed_seconds": 5.588865041732788,
+        "usage": {
+          "prompt_tokens": 612,
+          "completion_tokens": 1069,
+          "total_tokens": 1681
+        },
+        "entity_scores": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "matched": 0,
+          "predicted_count": 3,
+          "gt_count": 11
+        },
+        "relationship_scores": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "matched": 0,
+          "predicted_count": 7,
+          "gt_count": 8
+        },
+        "risk_coverage": {
+          "recall": 1.0,
+          "covered": 2,
+          "gt_count": 2
+        },
+        "assumption_coverage": {
+          "recall": 1.0,
+          "covered": 2,
+          "gt_count": 2
+        },
+        "evidence_grounding": {
+          "grounded_rate": 1.0,
+          "grounded": 14,
+          "non_empty": 14,
+          "total": 14
+        },
+        "relationship_normalization": {
+          "normalized_rate": 0.0,
+          "normalized": 0,
+          "total": 7
+        },
+        "predicted_nodes": [
+          {
+            "id": "82f73f029c15",
+            "label": "component",
+            "type": "external_system"
+          },
+          {
+            "id": "0daea96f8e2a",
+            "label": "component",
+            "type": "component"
+          },
+          {
+            "id": "61b7d286bd38",
+            "label": "actor",
+            "type": "actor"
+          }
+        ],
+        "predicted_edges": [
+          {
+            "source": "0daea96f8e2a",
+            "target": "0daea96f8e2a",
+            "label": "transmit"
+          },
+          {
+            "source": "0daea96f8e2a",
+            "target": "0daea96f8e2a",
+            "label": "forward"
+          },
+          {
+            "source": "0daea96f8e2a",
+            "target": "0daea96f8e2a",
+            "label": "stream"
+          },
+          {
+            "source": "0daea96f8e2a",
+            "target": "0daea96f8e2a",
+            "label": "trigger"
+          },
+          {
+            "source": "0daea96f8e2a",
+            "target": "0daea96f8e2a",
+            "label": "store"
+          },
+          {
+            "source": "0daea96f8e2a",
+            "target": "0daea96f8e2a",
+            "label": "authenticate"
+          },
+          {
+            "source": "0daea96f8e2a",
+            "target": "61b7d286bd38",
+            "label": "deliver"
+          }
+        ],
+        "predicted_risks": [
+          "False positive alerts may lead to alarm fatigue",
+          "Network outages may interrupt monitoring and delay alerts"
+        ],
+        "predicted_assumptions": [
+          "The hospital network provides reliable connectivity",
+          "Clinicians respond to critical alerts within an acceptable time window"
+        ]
+      },
+      {
+        "case_id": "ecommerce_bookstore",
+        "domain": "e-commerce / retail",
+        "elapsed_seconds": 14.248625993728638,
+        "usage": {
+          "prompt_tokens": 606,
+          "completion_tokens": 794,
+          "total_tokens": 1400
+        },
+        "entity_scores": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "matched": 0,
+          "predicted_count": 4,
+          "gt_count": 9
+        },
+        "relationship_scores": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "matched": 0,
+          "predicted_count": 6,
+          "gt_count": 6
+        },
+        "risk_coverage": {
+          "recall": 1.0,
+          "covered": 2,
+          "gt_count": 2
+        },
+        "assumption_coverage": {
+          "recall": 1.0,
+          "covered": 2,
+          "gt_count": 2
+        },
+        "evidence_grounding": {
+          "grounded_rate": 1.0,
+          "grounded": 14,
+          "non_empty": 14,
+          "total": 14
+        },
+        "relationship_normalization": {
+          "normalized_rate": 0.0,
+          "normalized": 0,
+          "total": 6
+        },
+        "predicted_nodes": [
+          {
+            "id": "0daea96f8e2a",
+            "label": "component",
+            "type": "component"
+          },
+          {
+            "id": "82f73f029c15",
+            "label": "component",
+            "type": "external_system"
+          },
+          {
+            "id": "61b7d286bd38",
+            "label": "actor",
+            "type": "actor"
+          },
+          {
+            "id": "81fa888e20b3",
+            "label": "requirement",
+            "type": "requirement"
+          }
+        ],
+        "predicted_edges": [
+          {
+            "source": "0daea96f8e2a",
+            "target": "0daea96f8e2a",
+            "label": "send"
+          },
+          {
+            "source": "0daea96f8e2a",
+            "target": "82f73f029c15",
+            "label": "call"
+          },
+          {
+            "source": "0daea96f8e2a",
+            "target": "0daea96f8e2a",
+            "label": "notify"
+          },
+          {
+            "source": "0daea96f8e2a",
+            "target": "82f73f029c15",
+            "label": "hand_off"
+          },
+          {
+            "source": "82f73f029c15",
+            "target": "0daea96f8e2a",
+            "label": "report"
+          },
+          {
+            "source": "0daea96f8e2a",
+            "target": "0daea96f8e2a",
+            "label": "write"
+          }
+        ],
+        "predicted_risks": [
+          "The Payment Gateway may become unavailable, blocking all checkouts.",
+          "The Inventory Database may show stock as available when it has actually been oversold due to concurrent orders."
+        ],
+        "predicted_assumptions": [
+          "The Payment Gateway maintains PCI-DSS compliance.",
+          "The Shipping Partner's API remains available during peak sales periods."
+        ]
+      },
+      {
+        "case_id": "smart_home_thermostat",
+        "domain": "IoT / smart home",
+        "elapsed_seconds": 6.554131984710693,
+        "usage": {
+          "prompt_tokens": 605,
+          "completion_tokens": 1182,
+          "total_tokens": 1787
+        },
+        "entity_scores": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "matched": 0,
+          "predicted_count": 4,
+          "gt_count": 8
+        },
+        "relationship_scores": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "matched": 0,
+          "predicted_count": 4,
+          "gt_count": 5
+        },
+        "risk_coverage": {
+          "recall": 1.0,
+          "covered": 2,
+          "gt_count": 2
+        },
+        "assumption_coverage": {
+          "recall": 1.0,
+          "covered": 2,
+          "gt_count": 2
+        },
+        "evidence_grounding": {
+          "grounded_rate": 1.0,
+          "grounded": 12,
+          "non_empty": 12,
+          "total": 12
+        },
+        "relationship_normalization": {
+          "normalized_rate": 0.5,
+          "normalized": 2,
+          "total": 4
+        },
+        "predicted_nodes": [
+          {
+            "id": "0daea96f8e2a",
+            "label": "component",
+            "type": "component"
+          },
+          {
+            "id": "1d1401315a18",
+            "label": "external_system",
+            "type": "external_system"
+          },
+          {
+            "id": "61b7d286bd38",
+            "label": "actor",
+            "type": "actor"
+          },
+          {
+            "id": "81fa888e20b3",
+            "label": "requirement",
+            "type": "requirement"
+          }
+        ],
+        "predicted_edges": [
+          {
+            "source": "0daea96f8e2a",
+            "target": "0daea96f8e2a",
+            "label": "controls"
+          },
+          {
+            "source": "0daea96f8e2a",
+            "target": "0daea96f8e2a",
+            "label": "sends"
+          },
+          {
+            "source": "0daea96f8e2a",
+            "target": "1d1401315a18",
+            "label": "calls"
+          },
+          {
+            "source": "0daea96f8e2a",
+            "target": "0daea96f8e2a",
+            "label": "connects"
+          }
+        ],
+        "predicted_risks": [
+          "A Wi-Fi outage at the home prevents the Mobile App from controlling the Thermostat Device remotely.",
+          "Inaccurate data from the Weather API can cause the system to schedule heating or cooling at the wrong times."
+        ],
+        "predicted_assumptions": [
+          "The home has a stable Wi-Fi connection.",
+          "The HVAC Unit is compatible with the Thermostat Device's control protocol."
+        ]
+      },
+      {
+        "case_id": "fintech_p2p_payments",
+        "domain": "fintech / payments",
+        "elapsed_seconds": 11.342535257339478,
+        "usage": {
+          "prompt_tokens": 685,
+          "completion_tokens": 928,
+          "total_tokens": 1613
+        },
+        "entity_scores": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "matched": 0,
+          "predicted_count": 4,
+          "gt_count": 8
+        },
+        "relationship_scores": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "matched": 0,
+          "predicted_count": 6,
+          "gt_count": 5
+        },
+        "risk_coverage": {
+          "recall": 1.0,
+          "covered": 2,
+          "gt_count": 2
+        },
+        "assumption_coverage": {
+          "recall": 1.0,
+          "covered": 2,
+          "gt_count": 2
+        },
+        "evidence_grounding": {
+          "grounded_rate": 1.0,
+          "grounded": 14,
+          "non_empty": 14,
+          "total": 14
+        },
+        "relationship_normalization": {
+          "normalized_rate": 0.16666666666666666,
+          "normalized": 1,
+          "total": 6
+        },
+        "predicted_nodes": [
+          {
+            "id": "0daea96f8e2a",
+            "label": "component",
+            "type": "component"
+          },
+          {
+            "id": "61b7d286bd38",
+            "label": "actor",
+            "type": "actor"
+          },
+          {
+            "id": "1d1401315a18",
+            "label": "external_system",
+            "type": "external_system"
+          },
+          {
+            "id": "81fa888e20b3",
+            "label": "requirement",
+            "type": "requirement"
+          }
+        ],
+        "predicted_edges": [
+          {
+            "source": "61b7d286bd38",
+            "target": "0daea96f8e2a",
+            "label": "initiates"
+          },
+          {
+            "source": "0daea96f8e2a",
+            "target": "81fa888e20b3",
+            "label": "sends"
+          },
+          {
+            "source": "81fa888e20b3",
+            "target": "81fa888e20b3",
+            "label": "calls"
+          },
+          {
+            "source": "81fa888e20b3",
+            "target": "81fa888e20b3",
+            "label": "moves"
+          },
+          {
+            "source": "81fa888e20b3",
+            "target": "0daea96f8e2a",
+            "label": "monitors"
+          },
+          {
+            "source": "0daea96f8e2a",
+            "target": "61b7d286bd38",
+            "label": "flags"
+          }
+        ],
+        "predicted_risks": [
+          "The Fraud Detection Service may fail to catch a fraudulent transfer (a false negative), allowing money to be stolen.",
+          "An outage of the Banking Rail delays settlement of transfers."
+        ],
+        "predicted_assumptions": [
+          "The KYC Provider's identity data is accurate and up to date.",
+          "Users have a verified bank account linked to their PayLink profile."
+        ]
+      },
+      {
+        "case_id": "logistics_fleet_tracking",
+        "domain": "logistics / supply chain",
+        "elapsed_seconds": 5.960977554321289,
+        "usage": {
+          "prompt_tokens": 571,
+          "completion_tokens": 1152,
+          "total_tokens": 1723
+        },
+        "entity_scores": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "matched": 0,
+          "predicted_count": 4,
+          "gt_count": 9
+        },
+        "relationship_scores": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "matched": 0,
+          "predicted_count": 7,
+          "gt_count": 6
+        },
+        "risk_coverage": {
+          "recall": 1.0,
+          "covered": 2,
+          "gt_count": 2
+        },
+        "assumption_coverage": {
+          "recall": 1.0,
+          "covered": 2,
+          "gt_count": 2
+        },
+        "evidence_grounding": {
+          "grounded_rate": 1.0,
+          "grounded": 15,
+          "non_empty": 15,
+          "total": 15
+        },
+        "relationship_normalization": {
+          "normalized_rate": 0.2857142857142857,
+          "normalized": 2,
+          "total": 7
+        },
+        "predicted_nodes": [
+          {
+            "id": "1d1401315a18",
+            "label": "external_system",
+            "type": "external_system"
+          },
+          {
+            "id": "0daea96f8e2a",
+            "label": "component",
+            "type": "component"
+          },
+          {
+            "id": "61b7d286bd38",
+            "label": "actor",
+            "type": "actor"
+          },
+          {
+            "id": "81fa888e20b3",
+            "label": "requirement",
+            "type": "requirement"
+          }
+        ],
+        "predicted_edges": [
+          {
+            "source": "0daea96f8e2a",
+            "target": "0daea96f8e2a",
+            "label": "sends_data"
+          },
+          {
+            "source": "0daea96f8e2a",
+            "target": "0daea96f8e2a",
+            "label": "stores_data"
+          },
+          {
+            "source": "0daea96f8e2a",
+            "target": "0daea96f8e2a",
+            "label": "reads_data"
+          },
+          {
+            "source": "0daea96f8e2a",
+            "target": "0daea96f8e2a",
+            "label": "sends_alert"
+          },
+          {
+            "source": "0daea96f8e2a",
+            "target": "1d1401315a18",
+            "label": "calls"
+          },
+          {
+            "source": "1d1401315a18",
+            "target": "0daea96f8e2a",
+            "label": "provides_data"
+          },
+          {
+            "source": "0daea96f8e2a",
+            "target": "61b7d286bd38",
+            "label": "triggers"
+          }
+        ],
+        "predicted_risks": [
+          "GPS signal loss in tunnels or dense urban areas causes inaccurate vehicle tracking.",
+          "An outage of the Traffic API leads to incorrect estimated delivery times shown to customers."
+        ],
+        "predicted_assumptions": [
+          "Drivers' phones maintain continuous mobile data connectivity.",
+          "All vehicles are equipped with GPS hardware compatible with the Driver App."
+        ]
+      },
+      {
+        "case_id": "rideshare_platform_multidoc",
+        "domain": "ride-sharing (multi-document)",
+        "elapsed_seconds": 11.213372707366943,
+        "usage": {
+          "prompt_tokens": 930,
+          "completion_tokens": 2034,
+          "total_tokens": 2964
+        },
+        "entity_scores": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "matched": 0,
+          "predicted_count": 4,
+          "gt_count": 15
+        },
+        "relationship_scores": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "matched": 0,
+          "predicted_count": 13,
+          "gt_count": 12
+        },
+        "risk_coverage": {
+          "recall": 0.6666666666666666,
+          "covered": 2,
+          "gt_count": 3
+        },
+        "assumption_coverage": {
+          "recall": 1.0,
+          "covered": 2,
+          "gt_count": 2
+        },
+        "evidence_grounding": {
+          "grounded_rate": 1.0,
+          "grounded": 22,
+          "non_empty": 22,
+          "total": 22
+        },
+        "relationship_normalization": {
+          "normalized_rate": 0.23076923076923078,
+          "normalized": 3,
+          "total": 13
+        },
+        "predicted_nodes": [
+          {
+            "id": "0daea96f8e2a",
+            "label": "component",
+            "type": "component"
+          },
+          {
+            "id": "1d1401315a18",
+            "label": "external_system",
+            "type": "external_system"
+          },
+          {
+            "id": "61b7d286bd38",
+            "label": "actor",
+            "type": "actor"
+          },
+          {
+            "id": "81fa888e20b3",
+            "label": "requirement",
+            "type": "requirement"
+          }
+        ],
+        "predicted_edges": [
+          {
+            "source": "0daea96f8e2a",
+            "target": "0daea96f8e2a",
+            "label": "requests"
+          },
+          {
+            "source": "0daea96f8e2a",
+            "target": "0daea96f8e2a",
+            "label": "triggers"
+          },
+          {
+            "source": "0daea96f8e2a",
+            "target": "0daea96f8e2a",
+            "label": "sends"
+          },
+          {
+            "source": "0daea96f8e2a",
+            "target": "0daea96f8e2a",
+            "label": "polls"
+          },
+          {
+            "source": "0daea96f8e2a",
+            "target": "0daea96f8e2a",
+            "label": "aggregates"
+          },
+          {
+            "source": "0daea96f8e2a",
+            "target": "0daea96f8e2a",
+            "label": "reports"
+          },
+          {
+            "source": "0daea96f8e2a",
+            "target": "1d1401315a18",
+            "label": "charges"
+          },
+          {
+            "source": "1d1401315a18",
+            "target": "0daea96f8e2a",
+            "label": "pays"
+          },
+          {
+            "source": "0daea96f8e2a",
+            "target": "1d1401315a18",
+            "label": "calls"
+          },
+          {
+            "source": "0daea96f8e2a",
+            "target": "0daea96f8e2a",
+            "label": "stores_in"
+          },
+          {
+            "source": "0daea96f8e2a",
+            "target": "0daea96f8e2a",
+            "label": "views"
+          },
+          {
+            "source": "0daea96f8e2a",
+            "target": "0daea96f8e2a",
+            "label": "connects"
+          },
+          {
+            "source": "0daea96f8e2a",
+            "target": "0daea96f8e2a",
+            "label": "records"
+          }
+        ],
+        "predicted_risks": [
+          "The Matching Service could match a rider with a driver who has failed a background check, if the Driver Verification Service's data is not refreshed in time",
+          "GPS signal loss in dense urban areas or tunnels, which can cause the Trip Tracking Service to show an inaccurate vehicle position to riders during a trip",
+          "if the Payment Processor experiences downtime, trip billing may be delayed"
+        ],
+        "predicted_assumptions": [
+          "drivers carry a smartphone with continuous mobile data access throughout a trip",
+          "the Driver Verification Service's background-check data is accurate and updated on a regular schedule"
+        ]
+      }
+    ],
+    "failures": []
+  }
+}
