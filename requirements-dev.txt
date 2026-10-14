@@ -1,0 +1,7 @@
+# Test-only dependencies (Phase 7). Not needed to run the app, only to run
+# its test suite -- kept separate from requirements.txt so the distinction
+# between "the app needs this" and "testing it needs this" stays explicit.
+#
+#   pip install -r requirements.txt -r requirements-dev.txt
+#   python -m pytest
+pytest==9.1.1

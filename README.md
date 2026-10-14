@@ -39,6 +39,7 @@ Python, a plain `http.server`-based backend (no web framework, by design), an Op
 python -m venv .venv
 source .venv/bin/activate   # .venv\Scripts\Activate.ps1 on Windows
 pip install -r requirements.txt
+pip install -r requirements-dev.txt   # only needed to run the test suite
 ```
 
 Provide an OpenAI-compatible API key via the `UPB_AI_GATEWAY_KEY` environment variable, or a local `UPB_AI_GATEWAY_KEY.txt` file (gitignored — never commit this). The gateway URL/model are set in `llm_engine.py`; point them at whatever OpenAI-compatible endpoint you have access to.
@@ -48,6 +49,14 @@ python app_server.py
 ```
 
 Open `http://127.0.0.1:8000`, paste text and/or upload one or more `.txt` files (see `example_system_description.txt` for a sample input describing a hospital patient-monitoring system) — multiple files are treated as separate documents and aggregated into one context model — and click **Analyze**.
+
+## Tests
+
+```bash
+python -m pytest
+```
+
+65 unit tests across 5 files, ~1.5s, zero network calls (everything exercised via monkeypatching rather than hitting the real gateway). Covers the deterministic graph logic (deduplication, canonicalization, relationship normalization), the eval harness's own scoring functions, the structured-output schema's validation, and the agentic loop's routing/iteration-cap logic. Largely a formalization of checks this project was already running ad hoc at every phase — see `tests/` for the per-module breakdown.
 
 ## What's built
 
@@ -64,6 +73,7 @@ Open `http://127.0.0.1:8000`, paste text and/or upload one or more `.txt` files 
 - Multi-document input with retrieval — upload several files at once; each is chunked, embedded, and the most relevant chunks per extraction category are selected via cosine similarity rather than concatenating everything into one prompt
 - An agentic self-check/repair loop (LangGraph) that reviews its own extraction against the source text and corrects specific, named issues — available as a standalone capability (`agentic.py`), measured, and deliberately not wired in as the default path (see below for the cost/quality tradeoff that decision was based on)
 - A model-comparison harness (`run_evals_model_comparison.py`) that swaps the extraction model and re-runs the full eval suite, measuring quality, latency, and token cost side by side — see below for a finding it caught that a quick manual test completely missed
+- A unit test suite (`tests/`, pytest) for the pure-Python pipeline logic — deduplication, canonicalization, the eval harness's own scoring functions, schema validation, and the agentic loop's routing logic — 65 tests, zero network calls, ~1.5s
 
 ## Evaluation
 

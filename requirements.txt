@@ -1,5 +1,10 @@
-langgraph
-openai
-pydantic
-pyvis
-rich
+# Pinned to the exact versions this app is actually tested against (Phase 7).
+# These are the direct/top-level dependencies the app imports; transitive
+# dependencies (httpx, pydantic_core, etc.) are resolved by pip from these
+# pins and aren't pinned individually here -- that's a reasonable scope for
+# a project this size, not a full lockfile.
+langgraph==1.2.15
+openai==3.19.2
+pydantic==2.13.5
+pyvis==0.3.2
+rich==15.0.0
