@@ -1,0 +1,1210 @@
+{
+  "aggregate": {
+    "entity_precision": 0.9666666666666666,
+    "entity_recall": 0.817929292929293,
+    "entity_f1": 0.8833333333333334,
+    "relationship_precision": 0.697069597069597,
+    "relationship_recall": 0.8366666666666667,
+    "relationship_f1": 0.7564768564768565,
+    "risk_coverage": 1.0,
+    "assumption_coverage": 1.0,
+    "cases_run": 5,
+    "cases_failed": 0
+  },
+  "results": [
+    {
+      "case_id": "healthcare_neurocardiowatch",
+      "domain": "healthcare (reference scenario)",
+      "entity_scores": {
+        "precision": 1.0,
+        "recall": 0.9090909090909091,
+        "f1": 0.9523809523809523,
+        "matched": 10,
+        "predicted_count": 10,
+        "gt_count": 11
+      },
+      "relationship_scores": {
+        "precision": 0.46153846153846156,
+        "recall": 0.75,
+        "f1": 0.5714285714285714,
+        "matched": 6,
+        "predicted_count": 13,
+        "gt_count": 8
+      },
+      "risk_coverage": {
+        "recall": 1.0,
+        "covered": 2,
+        "gt_count": 2
+      },
+      "assumption_coverage": {
+        "recall": 1.0,
+        "covered": 2,
+        "gt_count": 2
+      },
+      "raw_llm_result": {
+        "entities": [
+          {
+            "id": "eeg_ecg_sensors",
+            "label": "EEG/ECG sensors",
+            "type": "component"
+          },
+          {
+            "id": "patient_monitoring_device",
+            "label": "Patient Monitoring Device",
+            "type": "component"
+          },
+          {
+            "id": "streaming_gateway",
+            "label": "Streaming Gateway",
+            "type": "component"
+          },
+          {
+            "id": "real_time_analytics_backend",
+            "label": "Real-Time Analytics Backend",
+            "type": "component"
+          },
+          {
+            "id": "notification_service",
+            "label": "Notification Service",
+            "type": "component"
+          },
+          {
+            "id": "clinical_monitoring_dashboard",
+            "label": "Clinical Monitoring Dashboard",
+            "type": "component"
+          },
+          {
+            "id": "ehr",
+            "label": "Electronic Health Record (EHR)",
+            "type": "external_system"
+          },
+          {
+            "id": "hospital_identity_provider",
+            "label": "Hospital Identity Provider",
+            "type": "external_system"
+          },
+          {
+            "id": "nurses",
+            "label": "nurses",
+            "type": "actor"
+          },
+          {
+            "id": "doctors",
+            "label": "doctors",
+            "type": "actor"
+          }
+        ],
+        "relationships": [
+          {
+            "source_id": "eeg_ecg_sensors",
+            "target_id": "patient_monitoring_device",
+            "label": "transmits"
+          },
+          {
+            "source_id": "patient_monitoring_device",
+            "target_id": "streaming_gateway",
+            "label": "forwards"
+          },
+          {
+            "source_id": "streaming_gateway",
+            "target_id": "real_time_analytics_backend",
+            "label": "streams"
+          },
+          {
+            "source_id": "real_time_analytics_backend",
+            "target_id": "notification_service",
+            "label": "triggers"
+          },
+          {
+            "source_id": "real_time_analytics_backend",
+            "target_id": "ehr",
+            "label": "stores"
+          },
+          {
+            "source_id": "real_time_analytics_backend",
+            "target_id": "clinical_monitoring_dashboard",
+            "label": "provides"
+          },
+          {
+            "source_id": "clinical_monitoring_dashboard",
+            "target_id": "nurses",
+            "label": "delivers"
+          },
+          {
+            "source_id": "clinical_monitoring_dashboard",
+            "target_id": "doctors",
+            "label": "delivers"
+          },
+          {
+            "source_id": "clinical_monitoring_dashboard",
+            "target_id": "hospital_identity_provider",
+            "label": "authenticates"
+          },
+          {
+            "source_id": "nurses",
+            "target_id": "clinical_monitoring_dashboard",
+            "label": "reviews"
+          },
+          {
+            "source_id": "doctors",
+            "target_id": "clinical_monitoring_dashboard",
+            "label": "reviews"
+          },
+          {
+            "source_id": "nurses",
+            "target_id": "notification_service",
+            "label": "receives"
+          },
+          {
+            "source_id": "doctors",
+            "target_id": "notification_service",
+            "label": "receives"
+          }
+        ],
+        "risks": [
+          {
+            "id": "r1",
+            "description": "False positive alerts may lead to alarm fatigue.",
+            "severity": "medium",
+            "related_nodes": [
+              "real_time_analytics_backend",
+              "notification_service",
+              "nurses",
+              "doctors"
+            ]
+          },
+          {
+            "id": "r2",
+            "description": "Network outages may interrupt monitoring and delay alerts.",
+            "severity": "high",
+            "related_nodes": [
+              "streaming_gateway",
+              "real_time_analytics_backend",
+              "patient_monitoring_device",
+              "eeg_ecg_sensors"
+            ]
+          }
+        ],
+        "assumptions": [
+          {
+            "id": "a1",
+            "description": "The hospital network provides reliable connectivity.",
+            "related_nodes": [
+              "streaming_gateway",
+              "real_time_analytics_backend",
+              "patient_monitoring_device",
+              "eeg_ecg_sensors"
+            ]
+          },
+          {
+            "id": "a2",
+            "description": "Clinicians respond to critical alerts within an acceptable time window.",
+            "related_nodes": [
+              "nurses",
+              "doctors",
+              "clinical_monitoring_dashboard",
+              "notification_service"
+            ]
+          }
+        ]
+      },
+      "predicted_nodes": [
+        {
+          "id": "a03ef89c1a43",
+          "label": "EEG/ECG sensors",
+          "type": "component"
+        },
+        {
+          "id": "55e52d06e8b4",
+          "label": "Patient Monitoring Device",
+          "type": "component"
+        },
+        {
+          "id": "134aae120207",
+          "label": "Streaming Gateway",
+          "type": "component"
+        },
+        {
+          "id": "bbe619e26bb3",
+          "label": "Real-Time Analytics Backend",
+          "type": "component"
+        },
+        {
+          "id": "cfb41dfd4764",
+          "label": "Notification Service",
+          "type": "component"
+        },
+        {
+          "id": "e223cc1275a5",
+          "label": "Clinical Monitoring Dashboard",
+          "type": "component"
+        },
+        {
+          "id": "d73212540798",
+          "label": "Electronic Health Record (EHR)",
+          "type": "external_system"
+        },
+        {
+          "id": "bd2ac696c4b6",
+          "label": "Hospital Identity Provider",
+          "type": "external_system"
+        },
+        {
+          "id": "6937c850e9b8",
+          "label": "nurses",
+          "type": "actor"
+        },
+        {
+          "id": "4f1e23b608e6",
+          "label": "doctors",
+          "type": "actor"
+        }
+      ],
+      "predicted_edges": [
+        {
+          "source": "a03ef89c1a43",
+          "target": "55e52d06e8b4",
+          "label": "transmits"
+        },
+        {
+          "source": "55e52d06e8b4",
+          "target": "134aae120207",
+          "label": "forwards"
+        },
+        {
+          "source": "134aae120207",
+          "target": "bbe619e26bb3",
+          "label": "streams"
+        },
+        {
+          "source": "bbe619e26bb3",
+          "target": "cfb41dfd4764",
+          "label": "triggers"
+        },
+        {
+          "source": "bbe619e26bb3",
+          "target": "d73212540798",
+          "label": "stores"
+        },
+        {
+          "source": "bbe619e26bb3",
+          "target": "e223cc1275a5",
+          "label": "provides"
+        },
+        {
+          "source": "e223cc1275a5",
+          "target": "6937c850e9b8",
+          "label": "delivers"
+        },
+        {
+          "source": "e223cc1275a5",
+          "target": "4f1e23b608e6",
+          "label": "delivers"
+        },
+        {
+          "source": "e223cc1275a5",
+          "target": "bd2ac696c4b6",
+          "label": "authenticates"
+        },
+        {
+          "source": "6937c850e9b8",
+          "target": "e223cc1275a5",
+          "label": "reviews"
+        },
+        {
+          "source": "4f1e23b608e6",
+          "target": "e223cc1275a5",
+          "label": "reviews"
+        },
+        {
+          "source": "6937c850e9b8",
+          "target": "cfb41dfd4764",
+          "label": "receives"
+        },
+        {
+          "source": "4f1e23b608e6",
+          "target": "cfb41dfd4764",
+          "label": "receives"
+        }
+      ],
+      "predicted_risks": [
+        "False positive alerts may lead to alarm fatigue.",
+        "Network outages may interrupt monitoring and delay alerts."
+      ],
+      "predicted_assumptions": [
+        "The hospital network provides reliable connectivity.",
+        "Clinicians respond to critical alerts within an acceptable time window."
+      ]
+    },
+    {
+      "case_id": "ecommerce_bookstore",
+      "domain": "e-commerce / retail",
+      "entity_scores": {
+        "precision": 1.0,
+        "recall": 0.7777777777777778,
+        "f1": 0.8750000000000001,
+        "matched": 7,
+        "predicted_count": 7,
+        "gt_count": 9
+      },
+      "relationship_scores": {
+        "precision": 0.8571428571428571,
+        "recall": 1.0,
+        "f1": 0.923076923076923,
+        "matched": 6,
+        "predicted_count": 7,
+        "gt_count": 6
+      },
+      "risk_coverage": {
+        "recall": 1.0,
+        "covered": 2,
+        "gt_count": 2
+      },
+      "assumption_coverage": {
+        "recall": 1.0,
+        "covered": 2,
+        "gt_count": 2
+      },
+      "raw_llm_result": {
+        "entities": [
+          {
+            "id": "web_storefront",
+            "label": "Web Storefront",
+            "type": "component"
+          },
+          {
+            "id": "order_service",
+            "label": "Order Service",
+            "type": "component"
+          },
+          {
+            "id": "payment_gateway",
+            "label": "Payment Gateway",
+            "type": "external_system"
+          },
+          {
+            "id": "inventory_service",
+            "label": "Inventory Service",
+            "type": "component"
+          },
+          {
+            "id": "inventory_database",
+            "label": "Inventory Database",
+            "type": "component"
+          },
+          {
+            "id": "shipping_partner",
+            "label": "Shipping Partner",
+            "type": "external_system"
+          },
+          {
+            "id": "admin_portal",
+            "label": "Admin Portal",
+            "type": "component"
+          }
+        ],
+        "relationships": [
+          {
+            "source_id": "web_storefront",
+            "target_id": "order_service",
+            "label": "sends_order"
+          },
+          {
+            "source_id": "order_service",
+            "target_id": "payment_gateway",
+            "label": "calls"
+          },
+          {
+            "source_id": "order_service",
+            "target_id": "inventory_service",
+            "label": "notifies"
+          },
+          {
+            "source_id": "inventory_service",
+            "target_id": "inventory_database",
+            "label": "reads_writes"
+          },
+          {
+            "source_id": "order_service",
+            "target_id": "shipping_partner",
+            "label": "hands_off"
+          },
+          {
+            "source_id": "shipping_partner",
+            "target_id": "order_service",
+            "label": "reports_status"
+          },
+          {
+            "source_id": "admin_portal",
+            "target_id": "inventory_database",
+            "label": "writes_to"
+          }
+        ],
+        "risks": [
+          {
+            "id": "r1",
+            "description": "The Payment Gateway may become unavailable, blocking all checkouts.",
+            "severity": "high",
+            "related_nodes": [
+              "payment_gateway"
+            ]
+          },
+          {
+            "id": "r2",
+            "description": "The Inventory Database may show stock as available when it has actually been oversold due to concurrent orders.",
+            "severity": "high",
+            "related_nodes": [
+              "inventory_database",
+              "inventory_service"
+            ]
+          }
+        ],
+        "assumptions": [
+          {
+            "id": "a1",
+            "description": "The Payment Gateway maintains PCI-DSS compliance.",
+            "related_nodes": [
+              "payment_gateway"
+            ]
+          },
+          {
+            "id": "a2",
+            "description": "The Shipping Partner's API remains available during peak sales periods.",
+            "related_nodes": [
+              "shipping_partner"
+            ]
+          }
+        ]
+      },
+      "predicted_nodes": [
+        {
+          "id": "dca1da56c173",
+          "label": "Web Storefront",
+          "type": "component"
+        },
+        {
+          "id": "8e658e02893a",
+          "label": "Order Service",
+          "type": "component"
+        },
+        {
+          "id": "f1ddeffb86a5",
+          "label": "Payment Gateway",
+          "type": "external_system"
+        },
+        {
+          "id": "a10fce101960",
+          "label": "Inventory Service",
+          "type": "component"
+        },
+        {
+          "id": "cfc2fe8c09d7",
+          "label": "Inventory Database",
+          "type": "component"
+        },
+        {
+          "id": "043ea2450713",
+          "label": "Shipping Partner",
+          "type": "external_system"
+        },
+        {
+          "id": "27b7c2f9c217",
+          "label": "Admin Portal",
+          "type": "component"
+        }
+      ],
+      "predicted_edges": [
+        {
+          "source": "dca1da56c173",
+          "target": "8e658e02893a",
+          "label": "sends_order"
+        },
+        {
+          "source": "8e658e02893a",
+          "target": "f1ddeffb86a5",
+          "label": "calls"
+        },
+        {
+          "source": "8e658e02893a",
+          "target": "a10fce101960",
+          "label": "notifies"
+        },
+        {
+          "source": "a10fce101960",
+          "target": "cfc2fe8c09d7",
+          "label": "reads_writes"
+        },
+        {
+          "source": "8e658e02893a",
+          "target": "043ea2450713",
+          "label": "hands_off"
+        },
+        {
+          "source": "043ea2450713",
+          "target": "8e658e02893a",
+          "label": "reports_status"
+        },
+        {
+          "source": "27b7c2f9c217",
+          "target": "cfc2fe8c09d7",
+          "label": "writes_to"
+        }
+      ],
+      "predicted_risks": [
+        "The Payment Gateway may become unavailable, blocking all checkouts.",
+        "The Inventory Database may show stock as available when it has actually been oversold due to concurrent orders."
+      ],
+      "predicted_assumptions": [
+        "The Payment Gateway maintains PCI-DSS compliance.",
+        "The Shipping Partner's API remains available during peak sales periods."
+      ]
+    },
+    {
+      "case_id": "smart_home_thermostat",
+      "domain": "IoT / smart home",
+      "entity_scores": {
+        "precision": 0.8333333333333334,
+        "recall": 0.625,
+        "f1": 0.7142857142857143,
+        "matched": 5,
+        "predicted_count": 6,
+        "gt_count": 8
+      },
+      "relationship_scores": {
+        "precision": 0.6666666666666666,
+        "recall": 0.8,
+        "f1": 0.7272727272727272,
+        "matched": 4,
+        "predicted_count": 6,
+        "gt_count": 5
+      },
+      "risk_coverage": {
+        "recall": 1.0,
+        "covered": 2,
+        "gt_count": 2
+      },
+      "assumption_coverage": {
+        "recall": 1.0,
+        "covered": 2,
+        "gt_count": 2
+      },
+      "raw_llm_result": {
+        "entities": [
+          {
+            "id": "ecothem_mobile_app",
+            "label": "EcoTherm Mobile App",
+            "type": "actor"
+          },
+          {
+            "id": "cloud_backend",
+            "label": "Cloud Backend",
+            "type": "component"
+          },
+          {
+            "id": "thermostat_device",
+            "label": "Thermostat Device",
+            "type": "component"
+          },
+          {
+            "id": "hvac_unit",
+            "label": "HVAC Unit",
+            "type": "component"
+          },
+          {
+            "id": "weather_api",
+            "label": "Weather API",
+            "type": "external_system"
+          },
+          {
+            "id": "installer_portal",
+            "label": "Installer Portal",
+            "type": "component"
+          }
+        ],
+        "relationships": [
+          {
+            "source_id": "ecothem_mobile_app",
+            "target_id": "cloud_backend",
+            "label": "sends_control_commands"
+          },
+          {
+            "source_id": "cloud_backend",
+            "target_id": "thermostat_device",
+            "label": "sends_schedule_updates"
+          },
+          {
+            "source_id": "thermostat_device",
+            "target_id": "hvac_unit",
+            "label": "controls"
+          },
+          {
+            "source_id": "thermostat_device",
+            "target_id": "cloud_backend",
+            "label": "sends_temperature_readings"
+          },
+          {
+            "source_id": "cloud_backend",
+            "target_id": "weather_api",
+            "label": "queries"
+          },
+          {
+            "source_id": "installer_portal",
+            "target_id": "cloud_backend",
+            "label": "configures_device"
+          }
+        ],
+        "risks": [
+          {
+            "id": "r1",
+            "description": "A Wi-Fi outage at the home prevents the Mobile App from controlling the Thermostat Device remotely.",
+            "severity": "high",
+            "related_nodes": [
+              "ecothem_mobile_app",
+              "thermostat_device",
+              "cloud_backend"
+            ]
+          },
+          {
+            "id": "r2",
+            "description": "Inaccurate data from the Weather API can cause the system to schedule heating or cooling at the wrong times.",
+            "severity": "medium",
+            "related_nodes": [
+              "weather_api",
+              "cloud_backend"
+            ]
+          }
+        ],
+        "assumptions": [
+          {
+            "id": "a1",
+            "description": "The home has a stable Wi-Fi connection.",
+            "related_nodes": [
+              "ecothem_mobile_app",
+              "thermostat_device",
+              "cloud_backend"
+            ]
+          },
+          {
+            "id": "a2",
+            "description": "The HVAC Unit is compatible with the Thermostat Device's control protocol.",
+            "related_nodes": [
+              "thermostat_device",
+              "hvac_unit"
+            ]
+          }
+        ]
+      },
+      "predicted_nodes": [
+        {
+          "id": "14220eb1370a",
+          "label": "EcoTherm Mobile App",
+          "type": "actor"
+        },
+        {
+          "id": "5448a2d90717",
+          "label": "Cloud Backend",
+          "type": "component"
+        },
+        {
+          "id": "caa9f9efb398",
+          "label": "Thermostat Device",
+          "type": "component"
+        },
+        {
+          "id": "4eba48497d33",
+          "label": "HVAC Unit",
+          "type": "component"
+        },
+        {
+          "id": "a3e43f121961",
+          "label": "Weather API",
+          "type": "external_system"
+        },
+        {
+          "id": "c782a3f8bcce",
+          "label": "Installer Portal",
+          "type": "component"
+        }
+      ],
+      "predicted_edges": [
+        {
+          "source": "14220eb1370a",
+          "target": "5448a2d90717",
+          "label": "sends_control_commands"
+        },
+        {
+          "source": "5448a2d90717",
+          "target": "caa9f9efb398",
+          "label": "sends_schedule_updates"
+        },
+        {
+          "source": "caa9f9efb398",
+          "target": "4eba48497d33",
+          "label": "controls"
+        },
+        {
+          "source": "caa9f9efb398",
+          "target": "5448a2d90717",
+          "label": "sends_temperature_readings"
+        },
+        {
+          "source": "5448a2d90717",
+          "target": "a3e43f121961",
+          "label": "queries"
+        },
+        {
+          "source": "c782a3f8bcce",
+          "target": "5448a2d90717",
+          "label": "configures_device"
+        }
+      ],
+      "predicted_risks": [
+        "A Wi-Fi outage at the home prevents the Mobile App from controlling the Thermostat Device remotely.",
+        "Inaccurate data from the Weather API can cause the system to schedule heating or cooling at the wrong times."
+      ],
+      "predicted_assumptions": [
+        "The home has a stable Wi-Fi connection.",
+        "The HVAC Unit is compatible with the Thermostat Device's control protocol."
+      ]
+    },
+    {
+      "case_id": "fintech_p2p_payments",
+      "domain": "fintech / payments",
+      "entity_scores": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "matched": 8,
+        "predicted_count": 8,
+        "gt_count": 8
+      },
+      "relationship_scores": {
+        "precision": 0.6666666666666666,
+        "recall": 0.8,
+        "f1": 0.7272727272727272,
+        "matched": 4,
+        "predicted_count": 6,
+        "gt_count": 5
+      },
+      "risk_coverage": {
+        "recall": 1.0,
+        "covered": 2,
+        "gt_count": 2
+      },
+      "assumption_coverage": {
+        "recall": 1.0,
+        "covered": 2,
+        "gt_count": 2
+      },
+      "raw_llm_result": {
+        "entities": [
+          {
+            "id": "paylink_mobile_app",
+            "label": "PayLink Mobile App",
+            "type": "component"
+          },
+          {
+            "id": "transaction_service",
+            "label": "Transaction Service",
+            "type": "component"
+          },
+          {
+            "id": "kyc_provider",
+            "label": "KYC Provider",
+            "type": "external_system"
+          },
+          {
+            "id": "banking_rail",
+            "label": "Banking Rail",
+            "type": "external_system"
+          },
+          {
+            "id": "fraud_detection_service",
+            "label": "Fraud Detection Service",
+            "type": "component"
+          },
+          {
+            "id": "compliance_dashboard",
+            "label": "Compliance Dashboard",
+            "type": "component"
+          },
+          {
+            "id": "user",
+            "label": "User",
+            "type": "actor"
+          },
+          {
+            "id": "compliance_officer",
+            "label": "Compliance Officer",
+            "type": "actor"
+          }
+        ],
+        "relationships": [
+          {
+            "source_id": "paylink_mobile_app",
+            "target_id": "transaction_service",
+            "label": "initiates_transfer"
+          },
+          {
+            "source_id": "transaction_service",
+            "target_id": "kyc_provider",
+            "label": "calls"
+          },
+          {
+            "source_id": "transaction_service",
+            "target_id": "banking_rail",
+            "label": "transfers_funds_via"
+          },
+          {
+            "source_id": "transaction_service",
+            "target_id": "fraud_detection_service",
+            "label": "sends_transaction_to"
+          },
+          {
+            "source_id": "fraud_detection_service",
+            "target_id": "compliance_dashboard",
+            "label": "flags_for_review"
+          },
+          {
+            "source_id": "compliance_officer",
+            "target_id": "compliance_dashboard",
+            "label": "reviews"
+          }
+        ],
+        "risks": [
+          {
+            "id": "r1",
+            "description": "The Fraud Detection Service may fail to catch a fraudulent transfer (a false negative), allowing money to be stolen.",
+            "severity": "high",
+            "related_nodes": [
+              "fraud_detection_service"
+            ]
+          },
+          {
+            "id": "r2",
+            "description": "An outage of the Banking Rail delays settlement of transfers.",
+            "severity": "high",
+            "related_nodes": [
+              "banking_rail"
+            ]
+          }
+        ],
+        "assumptions": [
+          {
+            "id": "a1",
+            "description": "The KYC Provider's identity data is accurate and up to date.",
+            "related_nodes": [
+              "kyc_provider"
+            ]
+          },
+          {
+            "id": "a2",
+            "description": "Users have a verified bank account linked to their PayLink profile.",
+            "related_nodes": [
+              "user"
+            ]
+          }
+        ]
+      },
+      "predicted_nodes": [
+        {
+          "id": "e8527a4ae69d",
+          "label": "PayLink Mobile App",
+          "type": "component"
+        },
+        {
+          "id": "36f42f48e269",
+          "label": "Transaction Service",
+          "type": "component"
+        },
+        {
+          "id": "0bb6d7eac544",
+          "label": "KYC Provider",
+          "type": "external_system"
+        },
+        {
+          "id": "4042b5925888",
+          "label": "Banking Rail",
+          "type": "external_system"
+        },
+        {
+          "id": "28cb4f95be36",
+          "label": "Fraud Detection Service",
+          "type": "component"
+        },
+        {
+          "id": "dc2c58586995",
+          "label": "Compliance Dashboard",
+          "type": "component"
+        },
+        {
+          "id": "4a6ecee47c6f",
+          "label": "User",
+          "type": "actor"
+        },
+        {
+          "id": "6300fd2cf6f8",
+          "label": "Compliance Officer",
+          "type": "actor"
+        }
+      ],
+      "predicted_edges": [
+        {
+          "source": "e8527a4ae69d",
+          "target": "36f42f48e269",
+          "label": "initiates_transfer"
+        },
+        {
+          "source": "36f42f48e269",
+          "target": "0bb6d7eac544",
+          "label": "calls"
+        },
+        {
+          "source": "36f42f48e269",
+          "target": "4042b5925888",
+          "label": "transfers_funds_via"
+        },
+        {
+          "source": "36f42f48e269",
+          "target": "28cb4f95be36",
+          "label": "sends_transaction_to"
+        },
+        {
+          "source": "28cb4f95be36",
+          "target": "dc2c58586995",
+          "label": "flags_for_review"
+        },
+        {
+          "source": "6300fd2cf6f8",
+          "target": "dc2c58586995",
+          "label": "reviews"
+        }
+      ],
+      "predicted_risks": [
+        "The Fraud Detection Service may fail to catch a fraudulent transfer (a false negative), allowing money to be stolen.",
+        "An outage of the Banking Rail delays settlement of transfers."
+      ],
+      "predicted_assumptions": [
+        "The KYC Provider's identity data is accurate and up to date.",
+        "Users have a verified bank account linked to their PayLink profile."
+      ]
+    },
+    {
+      "case_id": "logistics_fleet_tracking",
+      "domain": "logistics / supply chain",
+      "entity_scores": {
+        "precision": 1.0,
+        "recall": 0.7777777777777778,
+        "f1": 0.8750000000000001,
+        "matched": 7,
+        "predicted_count": 7,
+        "gt_count": 9
+      },
+      "relationship_scores": {
+        "precision": 0.8333333333333334,
+        "recall": 0.8333333333333334,
+        "f1": 0.8333333333333334,
+        "matched": 5,
+        "predicted_count": 6,
+        "gt_count": 6
+      },
+      "risk_coverage": {
+        "recall": 1.0,
+        "covered": 2,
+        "gt_count": 2
+      },
+      "assumption_coverage": {
+        "recall": 1.0,
+        "covered": 2,
+        "gt_count": 2
+      },
+      "raw_llm_result": {
+        "entities": [
+          {
+            "id": "driver_app",
+            "label": "Driver App",
+            "type": "component"
+          },
+          {
+            "id": "tracking_backend",
+            "label": "Tracking Backend",
+            "type": "component"
+          },
+          {
+            "id": "route_database",
+            "label": "Route Database",
+            "type": "component"
+          },
+          {
+            "id": "dispatch_dashboard",
+            "label": "Dispatch Dashboard",
+            "type": "component"
+          },
+          {
+            "id": "notification_service",
+            "label": "Notification Service",
+            "type": "component"
+          },
+          {
+            "id": "traffic_api",
+            "label": "Traffic API",
+            "type": "external_system"
+          },
+          {
+            "id": "customer",
+            "label": "customer",
+            "type": "actor"
+          }
+        ],
+        "relationships": [
+          {
+            "source_id": "driver_app",
+            "target_id": "tracking_backend",
+            "label": "sends_location_data"
+          },
+          {
+            "source_id": "tracking_backend",
+            "target_id": "route_database",
+            "label": "stores_route_history"
+          },
+          {
+            "source_id": "tracking_backend",
+            "target_id": "dispatch_dashboard",
+            "label": "provides_live_data"
+          },
+          {
+            "source_id": "tracking_backend",
+            "target_id": "notification_service",
+            "label": "triggers_alert"
+          },
+          {
+            "source_id": "tracking_backend",
+            "target_id": "traffic_api",
+            "label": "queries"
+          },
+          {
+            "source_id": "notification_service",
+            "target_id": "customer",
+            "label": "notifies"
+          }
+        ],
+        "risks": [
+          {
+            "id": "r1",
+            "description": "GPS signal loss in tunnels or dense urban areas causes inaccurate vehicle tracking.",
+            "severity": "high",
+            "related_nodes": [
+              "driver_app",
+              "tracking_backend"
+            ]
+          },
+          {
+            "id": "r2",
+            "description": "An outage of the Traffic API leads to incorrect estimated delivery times shown to customers.",
+            "severity": "high",
+            "related_nodes": [
+              "traffic_api",
+              "tracking_backend"
+            ]
+          }
+        ],
+        "assumptions": [
+          {
+            "id": "a1",
+            "description": "Drivers' phones maintain continuous mobile data connectivity.",
+            "related_nodes": [
+              "driver_app",
+              "tracking_backend"
+            ]
+          },
+          {
+            "id": "a2",
+            "description": "All vehicles are equipped with GPS hardware compatible with the Driver App.",
+            "related_nodes": [
+              "driver_app",
+              "tracking_backend"
+            ]
+          }
+        ]
+      },
+      "predicted_nodes": [
+        {
+          "id": "fcb3e6b8ba4e",
+          "label": "Driver App",
+          "type": "component"
+        },
+        {
+          "id": "0cb30dd669d9",
+          "label": "Tracking Backend",
+          "type": "component"
+        },
+        {
+          "id": "5ae3c03bda3b",
+          "label": "Route Database",
+          "type": "component"
+        },
+        {
+          "id": "4067a80f7f9b",
+          "label": "Dispatch Dashboard",
+          "type": "component"
+        },
+        {
+          "id": "cfb41dfd4764",
+          "label": "Notification Service",
+          "type": "component"
+        },
+        {
+          "id": "7ee2691d6676",
+          "label": "Traffic API",
+          "type": "external_system"
+        },
+        {
+          "id": "2c12783775fd",
+          "label": "customer",
+          "type": "actor"
+        }
+      ],
+      "predicted_edges": [
+        {
+          "source": "fcb3e6b8ba4e",
+          "target": "0cb30dd669d9",
+          "label": "sends_location_data"
+        },
+        {
+          "source": "0cb30dd669d9",
+          "target": "5ae3c03bda3b",
+          "label": "stores_route_history"
+        },
+        {
+          "source": "0cb30dd669d9",
+          "target": "4067a80f7f9b",
+          "label": "provides_live_data"
+        },
+        {
+          "source": "0cb30dd669d9",
+          "target": "cfb41dfd4764",
+          "label": "triggers_alert"
+        },
+        {
+          "source": "0cb30dd669d9",
+          "target": "7ee2691d6676",
+          "label": "queries"
+        },
+        {
+          "source": "cfb41dfd4764",
+          "target": "2c12783775fd",
+          "label": "notifies"
+        }
+      ],
+      "predicted_risks": [
+        "GPS signal loss in tunnels or dense urban areas causes inaccurate vehicle tracking.",
+        "An outage of the Traffic API leads to incorrect estimated delivery times shown to customers."
+      ],
+      "predicted_assumptions": [
+        "Drivers' phones maintain continuous mobile data connectivity.",
+        "All vehicles are equipped with GPS hardware compatible with the Driver App."
+      ]
+    }
+  ],
+  "failures": []
+}

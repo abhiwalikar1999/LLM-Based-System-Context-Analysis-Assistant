@@ -53,3 +53,25 @@ Open `http://127.0.0.1:8000`, paste or upload a system description (see `example
 - 3 separate interactive graph views per run (context, risk, governance) plus 1 structured JSON export, instead of one overloaded diagram
 - Input-hash-based caching — re-analyzing identical input costs zero additional LLM calls
 - A per-session request cap as a built-in cost-control guardrail
+- An evaluation harness (`run_evals.py`) with 5 hand-labeled test cases across varied domains (healthcare, e-commerce, IoT, fintech, logistics) — not just the one reference scenario — measuring entity/relationship extraction quality and risk/assumption coverage against ground truth
+
+## Evaluation
+
+Extraction quality is measured, not assumed. `eval_cases.py` holds 5 hand-labeled system descriptions spanning different domains; `run_evals.py` runs the extraction pipeline against each and scores it with fuzzy entity matching (type + token-overlap), relationship-pair matching, and risk/assumption coverage.
+
+Current baseline (macro-average across all 5 cases):
+
+| Metric | Score |
+|---|---|
+| Entity precision / recall / F1 | 0.97 / 0.82 / 0.88 |
+| Relationship precision / recall / F1 | 0.70 / 0.84 / 0.76 |
+| Risk coverage | 1.00 |
+| Assumption coverage | 1.00 |
+
+Run it yourself:
+
+```bash
+python run_evals.py
+```
+
+Full methodology and per-case findings are documented in the script's header comments and `eval_cases.py`.
