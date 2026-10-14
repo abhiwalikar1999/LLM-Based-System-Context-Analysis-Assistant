@@ -1,7 +1,9 @@
 # llm_engine.py
 import os
-import json
+from typing import List, Literal
+
 from openai import OpenAI
+from pydantic import BaseModel, model_validator
 
 BASE_URL = "https://ai-gateway.uni-paderborn.de/v1"
 MODEL_NAME = "gwdg.qwen3-30b-a3b-instruct-2507"
@@ -36,11 +38,81 @@ Rules:
 - Do not invent components not supported by the text.
 """
 
+MAX_ATTEMPTS = 3
+
+
+# --- Structured output schema -------------------------------------------
+#
+# Mirrors the JSON shape described in SYSTEM_PROMPT exactly, so this is a
+# pure mechanism change (Phase 2), not a prompt change: the model still sees
+# the same instructions, but the API now enforces the response shape
+# server-side (strict JSON-schema mode -- confirmed supported by the UPB AI
+# Gateway / gwdg backend) instead of us hunting for a JSON object in free
+# text. See docs/PROGRESS.md for why this matters and what it replaced.
+#
+# JSON-schema enforcement guarantees required fields and enum values, but it
+# CANNOT express cross-field referential integrity (e.g. "every id used in
+# relationships/related_nodes must actually exist in entities") -- that's a
+# real class of error schema validation alone won't catch, so it's checked
+# explicitly below via a model_validator.
+
+class Entity(BaseModel):
+    id: str
+    label: str
+    type: Literal["component", "actor", "external_system", "requirement"]
+
+
+class Relationship(BaseModel):
+    source_id: str
+    target_id: str
+    label: str
+
+
+class Risk(BaseModel):
+    id: str
+    description: str
+    severity: Literal["low", "medium", "high"]
+    related_nodes: List[str] = []
+
+
+class Assumption(BaseModel):
+    id: str
+    description: str
+    related_nodes: List[str] = []
+
+
+class ContextExtraction(BaseModel):
+    entities: List[Entity]
+    relationships: List[Relationship]
+    risks: List[Risk]
+    assumptions: List[Assumption]
+
+    @model_validator(mode="after")
+    def check_referential_integrity(self) -> "ContextExtraction":
+        known_ids = {e.id for e in self.entities}
+        missing = set()
+        for rel in self.relationships:
+            if rel.source_id not in known_ids:
+                missing.add(rel.source_id)
+            if rel.target_id not in known_ids:
+                missing.add(rel.target_id)
+        for item in (*self.risks, *self.assumptions):
+            for node_id in item.related_nodes:
+                if node_id not in known_ids:
+                    missing.add(node_id)
+        if missing:
+            raise ValueError(
+                f"relationships/related_nodes reference id(s) not present in entities: {sorted(missing)}"
+            )
+        return self
+
+
 def _read_key_from_file(path: str = "UPB_AI_GATEWAY_KEY.txt") -> str:
     if os.path.exists(path):
         with open(path, "r", encoding="utf-8") as f:
             return f.read().strip()
     return ""
+
 
 def _get_key() -> str:
     key = os.getenv("UPB_AI_GATEWAY_KEY", "").strip()
@@ -53,32 +125,54 @@ def _get_key() -> str:
         )
     return key
 
-def _extract_json_object(text: str) -> str:
-    t = (text or "").strip()
-    # Remove markdown fences if any
-    if t.startswith("```"):
-        brace = t.find("{")
-        if brace != -1:
-            t = t[brace:]
-    start = t.find("{")
-    end = t.rfind("}")
-    if start == -1 or end == -1 or end <= start:
-        raise ValueError(f"No JSON found in model response. Raw response:\n{t[:500]}")
-    return t[start:end + 1]
 
 def ask_chatgpt(text: str) -> dict:
+    """
+    Extracts entities/relationships/risks/assumptions from `text` using
+    strict JSON-schema structured output (ContextExtraction), with a
+    retry-and-repair loop: on a refusal, API error, or a failed
+    referential-integrity check, the model's own prior (invalid) output and
+    the specific error are fed back so it can correct itself, up to
+    MAX_ATTEMPTS total tries.
+    """
     key = _get_key()
     client = OpenAI(api_key=key, base_url=BASE_URL)
 
-    response = client.chat.completions.create(
-        model=MODEL_NAME,
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": text}
-        ],
-        temperature=0
-    )
+    messages = [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": text},
+    ]
 
-    result_text = response.choices[0].message.content
-    json_text = _extract_json_object(result_text)
-    return json.loads(json_text)
+    last_error: Exception | None = None
+    last_raw_content: str | None = None
+
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        try:
+            response = client.beta.chat.completions.parse(
+                model=MODEL_NAME,
+                messages=messages,
+                response_format=ContextExtraction,
+                temperature=0,
+            )
+            message = response.choices[0].message
+            last_raw_content = message.content
+
+            if message.refusal:
+                raise ValueError(f"Model refused to answer: {message.refusal}")
+
+            return message.parsed.model_dump()
+
+        except Exception as e:
+            last_error = e
+            if attempt < MAX_ATTEMPTS:
+                if last_raw_content:
+                    messages.append({"role": "assistant", "content": last_raw_content})
+                messages.append({
+                    "role": "user",
+                    "content": f"That output was invalid: {e}. Please correct it and resend the full, corrected JSON extraction.",
+                })
+            continue
+
+    raise RuntimeError(
+        f"Structured extraction failed after {MAX_ATTEMPTS} attempts. Last error: {last_error}"
+    ) from last_error

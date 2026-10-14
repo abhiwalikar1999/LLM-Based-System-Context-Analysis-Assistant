@@ -1,11 +1,11 @@
 {
   "aggregate": {
     "entity_precision": 0.9666666666666666,
-    "entity_recall": 0.817929292929293,
-    "entity_f1": 0.8833333333333334,
-    "relationship_precision": 0.697069597069597,
-    "relationship_recall": 0.8366666666666667,
-    "relationship_f1": 0.7564768564768565,
+    "entity_recall": 0.7679292929292929,
+    "entity_f1": 0.8547619047619047,
+    "relationship_precision": 0.7558730158730158,
+    "relationship_recall": 0.8066666666666666,
+    "relationship_f1": 0.7795173453996983,
     "risk_coverage": 1.0,
     "assumption_coverage": 1.0,
     "cases_run": 5,
@@ -24,11 +24,11 @@
         "gt_count": 11
       },
       "relationship_scores": {
-        "precision": 0.46153846153846156,
-        "recall": 0.75,
-        "f1": 0.5714285714285714,
-        "matched": 6,
-        "predicted_count": 13,
+        "precision": 0.8888888888888888,
+        "recall": 1.0,
+        "f1": 0.9411764705882353,
+        "matched": 8,
+        "predicted_count": 9,
         "gt_count": 8
       },
       "risk_coverage": {
@@ -116,9 +116,14 @@
             "label": "triggers"
           },
           {
-            "source_id": "real_time_analytics_backend",
-            "target_id": "ehr",
-            "label": "stores"
+            "source_id": "notification_service",
+            "target_id": "nurses",
+            "label": "delivers"
+          },
+          {
+            "source_id": "notification_service",
+            "target_id": "doctors",
+            "label": "delivers"
           },
           {
             "source_id": "real_time_analytics_backend",
@@ -126,39 +131,14 @@
             "label": "provides"
           },
           {
-            "source_id": "clinical_monitoring_dashboard",
-            "target_id": "nurses",
-            "label": "delivers"
-          },
-          {
-            "source_id": "clinical_monitoring_dashboard",
-            "target_id": "doctors",
-            "label": "delivers"
+            "source_id": "real_time_analytics_backend",
+            "target_id": "ehr",
+            "label": "stores"
           },
           {
             "source_id": "clinical_monitoring_dashboard",
             "target_id": "hospital_identity_provider",
-            "label": "authenticates"
-          },
-          {
-            "source_id": "nurses",
-            "target_id": "clinical_monitoring_dashboard",
-            "label": "reviews"
-          },
-          {
-            "source_id": "doctors",
-            "target_id": "clinical_monitoring_dashboard",
-            "label": "reviews"
-          },
-          {
-            "source_id": "nurses",
-            "target_id": "notification_service",
-            "label": "receives"
-          },
-          {
-            "source_id": "doctors",
-            "target_id": "notification_service",
-            "label": "receives"
+            "label": "authenticates_via"
           }
         ],
         "risks": [
@@ -202,8 +182,8 @@
             "related_nodes": [
               "nurses",
               "doctors",
-              "clinical_monitoring_dashboard",
-              "notification_service"
+              "notification_service",
+              "clinical_monitoring_dashboard"
             ]
           }
         ]
@@ -282,9 +262,14 @@
           "label": "triggers"
         },
         {
-          "source": "bbe619e26bb3",
-          "target": "d73212540798",
-          "label": "stores"
+          "source": "cfb41dfd4764",
+          "target": "6937c850e9b8",
+          "label": "delivers"
+        },
+        {
+          "source": "cfb41dfd4764",
+          "target": "4f1e23b608e6",
+          "label": "delivers"
         },
         {
           "source": "bbe619e26bb3",
@@ -292,39 +277,14 @@
           "label": "provides"
         },
         {
-          "source": "e223cc1275a5",
-          "target": "6937c850e9b8",
-          "label": "delivers"
-        },
-        {
-          "source": "e223cc1275a5",
-          "target": "4f1e23b608e6",
-          "label": "delivers"
+          "source": "bbe619e26bb3",
+          "target": "d73212540798",
+          "label": "stores"
         },
         {
           "source": "e223cc1275a5",
           "target": "bd2ac696c4b6",
-          "label": "authenticates"
-        },
-        {
-          "source": "6937c850e9b8",
-          "target": "e223cc1275a5",
-          "label": "reviews"
-        },
-        {
-          "source": "4f1e23b608e6",
-          "target": "e223cc1275a5",
-          "label": "reviews"
-        },
-        {
-          "source": "6937c850e9b8",
-          "target": "cfb41dfd4764",
-          "label": "receives"
-        },
-        {
-          "source": "4f1e23b608e6",
-          "target": "cfb41dfd4764",
-          "label": "receives"
+          "label": "authenticates_via"
         }
       ],
       "predicted_risks": [
@@ -571,11 +531,11 @@
         "gt_count": 8
       },
       "relationship_scores": {
-        "precision": 0.6666666666666666,
-        "recall": 0.8,
-        "f1": 0.7272727272727272,
-        "matched": 4,
-        "predicted_count": 6,
+        "precision": 0.6,
+        "recall": 0.6,
+        "f1": 0.6,
+        "matched": 3,
+        "predicted_count": 5,
         "gt_count": 5
       },
       "risk_coverage": {
@@ -638,11 +598,6 @@
             "label": "controls"
           },
           {
-            "source_id": "thermostat_device",
-            "target_id": "cloud_backend",
-            "label": "sends_temperature_readings"
-          },
-          {
             "source_id": "cloud_backend",
             "target_id": "weather_api",
             "label": "queries"
@@ -670,7 +625,8 @@
             "severity": "medium",
             "related_nodes": [
               "weather_api",
-              "cloud_backend"
+              "cloud_backend",
+              "thermostat_device"
             ]
           }
         ],
@@ -743,11 +699,6 @@
           "label": "controls"
         },
         {
-          "source": "caa9f9efb398",
-          "target": "5448a2d90717",
-          "label": "sends_temperature_readings"
-        },
-        {
           "source": "5448a2d90717",
           "target": "a3e43f121961",
           "label": "queries"
@@ -772,18 +723,18 @@
       "domain": "fintech / payments",
       "entity_scores": {
         "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0,
-        "matched": 8,
-        "predicted_count": 8,
+        "recall": 0.75,
+        "f1": 0.8571428571428571,
+        "matched": 6,
+        "predicted_count": 6,
         "gt_count": 8
       },
       "relationship_scores": {
-        "precision": 0.6666666666666666,
-        "recall": 0.8,
-        "f1": 0.7272727272727272,
-        "matched": 4,
-        "predicted_count": 6,
+        "precision": 0.6,
+        "recall": 0.6,
+        "f1": 0.6,
+        "matched": 3,
+        "predicted_count": 5,
         "gt_count": 5
       },
       "risk_coverage": {
@@ -827,16 +778,6 @@
             "id": "compliance_dashboard",
             "label": "Compliance Dashboard",
             "type": "component"
-          },
-          {
-            "id": "user",
-            "label": "User",
-            "type": "actor"
-          },
-          {
-            "id": "compliance_officer",
-            "label": "Compliance Officer",
-            "type": "actor"
           }
         ],
         "relationships": [
@@ -863,12 +804,7 @@
           {
             "source_id": "fraud_detection_service",
             "target_id": "compliance_dashboard",
-            "label": "flags_for_review"
-          },
-          {
-            "source_id": "compliance_officer",
-            "target_id": "compliance_dashboard",
-            "label": "reviews"
+            "label": "flags_for_review_in"
           }
         ],
         "risks": [
@@ -901,7 +837,8 @@
             "id": "a2",
             "description": "Users have a verified bank account linked to their PayLink profile.",
             "related_nodes": [
-              "user"
+              "paylink_mobile_app",
+              "transaction_service"
             ]
           }
         ]
@@ -936,16 +873,6 @@
           "id": "dc2c58586995",
           "label": "Compliance Dashboard",
           "type": "component"
-        },
-        {
-          "id": "4a6ecee47c6f",
-          "label": "User",
-          "type": "actor"
-        },
-        {
-          "id": "6300fd2cf6f8",
-          "label": "Compliance Officer",
-          "type": "actor"
         }
       ],
       "predicted_edges": [
@@ -972,12 +899,7 @@
         {
           "source": "28cb4f95be36",
           "target": "dc2c58586995",
-          "label": "flags_for_review"
-        },
-        {
-          "source": "6300fd2cf6f8",
-          "target": "dc2c58586995",
-          "label": "reviews"
+          "label": "flags_for_review_in"
         }
       ],
       "predicted_risks": [
@@ -1103,8 +1025,8 @@
             "description": "An outage of the Traffic API leads to incorrect estimated delivery times shown to customers.",
             "severity": "high",
             "related_nodes": [
-              "traffic_api",
-              "tracking_backend"
+              "tracking_backend",
+              "traffic_api"
             ]
           }
         ],

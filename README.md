@@ -19,7 +19,7 @@ flowchart LR
     D --> F[Structured JSON<br/>model]
 ```
 
-1. **Extraction** — the input text is sent to an LLM with a strict prompt requiring valid JSON output: entities (actors / internal components / external systems), relationships, risks, and assumptions.
+1. **Extraction** — the input text is sent to an LLM with a strict prompt, using schema-constrained structured output (not free-text JSON parsing) to guarantee a valid shape: entities (actors / internal components / external systems), relationships, risks, and assumptions. A referential-integrity check (every id referenced actually exists) catches what schema validation alone can't, with an automatic retry/repair pass on failure.
 2. **Canonicalization** — extracted entities are deduplicated by normalized label + type (content-addressed IDs), so near-duplicate names don't create orphan nodes.
 3. **Deterministic enrichment** — a rule-based layer fills in requirements (functional/non-functional), security & governance controls, and operational concerns, and links risks to the controls that mitigate them. This keeps the output complete and useful even when the LLM's raw extraction is sparse.
 4. **Visualization** — three separate interactive graph views are rendered (via [pyvis](https://pyvis.readthedocs.io/)) instead of one overloaded diagram: a clean architecture/context view, a risk-traceability overlay, and a governance/requirements overlay.
@@ -54,19 +54,22 @@ Open `http://127.0.0.1:8000`, paste or upload a system description (see `example
 - Input-hash-based caching — re-analyzing identical input costs zero additional LLM calls
 - A per-session request cap as a built-in cost-control guardrail
 - An evaluation harness (`run_evals.py`) with 5 hand-labeled test cases across varied domains (healthcare, e-commerce, IoT, fintech, logistics) — not just the one reference scenario — measuring entity/relationship extraction quality and risk/assumption coverage against ground truth
+- Schema-constrained structured LLM output (Pydantic + strict JSON schema) with a referential-integrity check and an automatic retry/repair loop, replacing free-text JSON parsing
 
 ## Evaluation
 
-Extraction quality is measured, not assumed. `eval_cases.py` holds 5 hand-labeled system descriptions spanning different domains; `run_evals.py` runs the extraction pipeline against each and scores it with fuzzy entity matching (type + token-overlap), relationship-pair matching, and risk/assumption coverage.
+Extraction quality is measured, not assumed, and changes are measured again after — not just assumed to have helped. `eval_cases.py` holds 5 hand-labeled system descriptions spanning different domains; `run_evals.py` runs the extraction pipeline against each and scores it with fuzzy entity matching (type + token-overlap), relationship-pair matching, and risk/assumption coverage.
 
-Current baseline (macro-average across all 5 cases):
+Current baseline (macro-average across all 5 cases), after moving to schema-constrained structured output:
 
 | Metric | Score |
 |---|---|
-| Entity precision / recall / F1 | 0.97 / 0.82 / 0.88 |
-| Relationship precision / recall / F1 | 0.70 / 0.84 / 0.76 |
+| Entity precision / recall / F1 | 0.97 / 0.77 / 0.86 |
+| Relationship precision / recall / F1 | 0.76 / 0.81 / 0.78 |
 | Risk coverage | 1.00 |
 | Assumption coverage | 1.00 |
+
+These numbers moved only slightly from the pre-structured-output baseline — smaller than the run-to-run variance already observed at `temperature=0`, so that move isn't claimed as a real quality change. The actual win from structured output is structural: a whole failure mode (unparseable free-text responses crashing the pipeline) is now impossible by construction, and dangling entity references are caught and auto-repaired instead of silently corrupting the graph downstream.
 
 Run it yourself:
 
