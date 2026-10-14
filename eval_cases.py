@@ -29,6 +29,14 @@
 #     pair was found
 #   risks / assumptions: list of short strings describing the expected risk
 #     or assumption; graded by token-overlap coverage, not exact match
+#
+# Phase 4 addition: one multi-document case ("rideshare_platform_multidoc")
+# where "input_text" is a list of (document_label, document_text) pairs
+# instead of a plain string -- core.build_context_graph already accepts
+# both forms. Its ground truth deliberately includes items sourced from
+# EACH of the 3 documents, specifically so that incomplete retrieval (e.g.
+# missing the third, shortest document) would show up as a measurable
+# recall drop rather than being masked by the other two documents' content.
 
 EVAL_CASES = [
     {
@@ -240,6 +248,57 @@ Assumptions: Drivers' phones maintain continuous mobile data connectivity. All v
             "assumptions": [
                 "drivers phones have continuous data connectivity",
                 "vehicles have GPS hardware compatible with driver app",
+            ],
+        },
+    },
+    {
+        "id": "rideshare_platform_multidoc",
+        "domain": "ride-sharing (multi-document)",
+        "input_text": [
+            ("core_architecture", """RideFlow is a ride-sharing platform connecting riders with drivers in a city. Riders request trips through the RideFlow Rider App, which sends trip requests to the Matching Service. The Matching Service finds a nearby available driver and notifies them through the RideFlow Driver App. Once a driver accepts, the Driver App sends real-time GPS location updates to the Trip Tracking Service, which both the Rider App and Driver App poll to show the vehicle's current position to the rider. After each trip, riders can rate their driver through the Rider App, and the Rating Service aggregates these ratings for use by the Matching Service when selecting drivers. When the trip ends, the Driver App reports the final trip details to the Billing Service, which calculates the fare and charges the rider through the Payment Processor, an external third-party payment provider. The Billing Service also pays out driver earnings through the same Payment Processor. The Trip Tracking Service stores all trip routes in the Trip History Database for later reference."""),
+            ("safety_and_risk_addendum", """This addendum covers safety-related risks and assumptions for the RideFlow platform. A key risk is that the Matching Service could match a rider with a driver who has failed a background check, if the Driver Verification Service's data is not refreshed in time -- the Matching Service queries the Driver Verification Service, an external background-check provider, before allowing a driver to go online. Another risk is GPS signal loss in dense urban areas or tunnels, which can cause the Trip Tracking Service to show an inaccurate vehicle position to riders during a trip. We also note a payment risk: if the Payment Processor experiences downtime, trip billing may be delayed, which directly affects driver payouts and rider trust in the platform. Assumptions: drivers carry a smartphone with continuous mobile data access throughout a trip, and the Driver Verification Service's background-check data is accurate and updated on a regular schedule."""),
+            ("admin_and_support_operations", """RideFlow's support organization is described here. Support agents use the Support Console to view trip details from the Trip History Database and resolve rider or driver complaints submitted through either app. When a rider disputes a fare, support agents review the trip record in the Support Console and can issue a refund through the Billing Service. Platform administrators manage driver accounts, approve or suspend drivers based on reports from the Fraud Review team, and configure city-specific pricing rules through the Admin Dashboard, which connects to both the Matching Service and the Billing Service. All administrative actions, including account suspensions, refunds, and pricing changes, are recorded in the Audit Log for later compliance review."""),
+        ],
+        "ground_truth": {
+            "entities": [
+                {"label": "riders", "type": "actor"},
+                {"label": "drivers", "type": "actor"},
+                {"label": "support agents", "type": "actor"},
+                {"label": "platform administrators", "type": "actor"},
+                {"label": "RideFlow Rider App", "type": "component"},
+                {"label": "RideFlow Driver App", "type": "component"},
+                {"label": "Matching Service", "type": "component"},
+                {"label": "Trip Tracking Service", "type": "component"},
+                {"label": "Billing Service", "type": "component"},
+                {"label": "Trip History Database", "type": "component"},
+                {"label": "Support Console", "type": "component"},
+                {"label": "Admin Dashboard", "type": "component"},
+                {"label": "Audit Log", "type": "component"},
+                {"label": "Payment Processor", "type": "external_system"},
+                {"label": "Driver Verification Service", "type": "external_system"},
+            ],
+            "relationships": [
+                {"source": "RideFlow Rider App", "target": "Matching Service"},
+                {"source": "Matching Service", "target": "RideFlow Driver App"},
+                {"source": "RideFlow Driver App", "target": "Trip Tracking Service"},
+                {"source": "RideFlow Driver App", "target": "Billing Service"},
+                {"source": "Billing Service", "target": "Payment Processor"},
+                {"source": "Trip Tracking Service", "target": "Trip History Database"},
+                {"source": "Matching Service", "target": "Driver Verification Service"},
+                {"source": "Support Console", "target": "Trip History Database"},
+                {"source": "support agents", "target": "Billing Service"},
+                {"source": "Admin Dashboard", "target": "Matching Service"},
+                {"source": "Admin Dashboard", "target": "Billing Service"},
+                {"source": "platform administrators", "target": "Audit Log"},
+            ],
+            "risks": [
+                "driver matched despite failing background check due to stale verification data",
+                "GPS signal loss causes inaccurate vehicle position",
+                "payment processor downtime delays billing and driver payouts",
+            ],
+            "assumptions": [
+                "drivers have continuous mobile data access during a trip",
+                "driver verification background check data is accurate and regularly updated",
             ],
         },
     },

@@ -64,8 +64,10 @@ def _parse_content_type(header_value: str):
 def _parse_multipart_form(rfile, content_type_header: str, content_length: int):
     """
     Minimal stand-in for the removed cgi.FieldStorage (cgi is gone in Python 3.13+).
-    Returns {field_name: {"value": bytes, "filename": Optional[str]}}, or None if the
-    request isn't multipart/form-data.
+    Returns {field_name: [{"value": bytes, "filename": Optional[str]}, ...]} (a list per
+    field name, since a <input type="file" multiple> submits several parts under the same
+    name -- see Phase 4's multi-document upload), or None if the request isn't
+    multipart/form-data.
     """
     ctype, params = _parse_content_type(content_type_header)
     boundary = params.get("boundary")
@@ -103,7 +105,7 @@ def _parse_multipart_form(rfile, content_type_header: str, content_length: int):
         if content.endswith(b"\r\n"):
             content = content[:-2]
 
-        fields[name] = {"value": content, "filename": disp_params.get("filename")}
+        fields.setdefault(name, []).append({"value": content, "filename": disp_params.get("filename")})
 
     return fields
 
@@ -226,13 +228,13 @@ class Handler(BaseHTTPRequestHandler):
 
   <form method="POST" action="/analyze" enctype="multipart/form-data">
     <h3>Input</h3>
-    <p class="muted">Paste text OR upload a .txt file, then click Analyze (1 request unless cached).</p>
+    <p class="muted">Paste text and/or upload one or more .txt files -- each is treated as a separate document and aggregated into one context model, then click Analyze (1 request unless cached).</p>
 
     <label><b>Paste text:</b></label><br/>
     <textarea name="text"></textarea><br/><br/>
 
-    <label><b>Upload .txt:</b></label><br/>
-    <input type="file" name="file"/><br/><br/>
+    <label><b>Upload .txt file(s):</b></label><br/>
+    <input type="file" name="file" multiple/><br/><br/>
 
     <button class="btn" type="submit">Analyze</button>
   </form>
@@ -284,19 +286,31 @@ class Handler(BaseHTTPRequestHandler):
                 self.wfile.write(_html_page("Error", body))
                 return
 
-            text = ""
-            if "text" in form and form["text"]["value"]:
-                text = form["text"]["value"].decode("utf-8", errors="replace").strip()
+            # Build the list of input documents: the pasted-text box (if used)
+            # plus every uploaded file (Phase 4 supports multiple), each kept
+            # as its own (label, text) document rather than one blob -- this
+            # is what lets core.py's retrieval step reason about document
+            # boundaries.
+            documents = []
 
-            if not text and "file" in form and form["file"].get("filename"):
-                text = form["file"]["value"].decode("utf-8", errors="replace").strip()
+            if "text" in form and form["text"][0]["value"]:
+                pasted = form["text"][0]["value"].decode("utf-8", errors="replace").strip()
+                if pasted:
+                    documents.append(("pasted text", pasted))
 
-            if not text:
+            if "file" in form:
+                for i, f in enumerate(form["file"]):
+                    if f.get("filename") and f["value"]:
+                        content = f["value"].decode("utf-8", errors="replace").strip()
+                        if content:
+                            documents.append((f.get("filename") or f"uploaded file {i + 1}", content))
+
+            if not documents:
                 meter = _meter_html(used=used, last_run_used=0, cached=None)
                 body = f"""
 {meter}
 <div class="card">
-  <p class="muted">No input provided. Please paste text or upload a .txt file.</p>
+  <p class="muted">No input provided. Please paste text or upload one or more .txt files.</p>
   <p><a href="/">Back</a></p>
 </div>
 """
@@ -306,8 +320,8 @@ class Handler(BaseHTTPRequestHandler):
                 return
 
             # Run pipeline FIRST to find out if it's cached.
-            
-            result = run_pipeline(text, out_dir="output")
+
+            result = run_pipeline(documents, out_dir="output")
             cached = bool(result.get("cached", False))
             this_run_used = 0 if cached else 1
 

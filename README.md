@@ -10,7 +10,8 @@ Early in designing any non-trivial system, you need a shared picture of its cont
 
 ```mermaid
 flowchart LR
-    A[System description<br/>plain text] --> B[LLM extraction<br/>entities, relationships,<br/>risks, assumptions]
+    A[System description(s)<br/>one or more documents] --> R[Retrieval<br/>chunk + embed +<br/>select relevant chunks]
+    R --> B[LLM extraction<br/>entities, relationships,<br/>risks, assumptions]
     B --> C[Canonicalization<br/>dedupe + normalize]
     C --> D[Deterministic enrichment<br/>requirements, controls,<br/>governance layer]
     D --> E1[Context graph<br/>HTML]
@@ -19,11 +20,12 @@ flowchart LR
     D --> F[Structured JSON<br/>model]
 ```
 
-1. **Extraction** — the input text is sent to an LLM with a strict prompt, using schema-constrained structured output (not free-text JSON parsing) to guarantee a valid shape: entities (actors / internal components / external systems), relationships, risks, and assumptions, each with the supporting source sentence(s) attached. A referential-integrity check (every id referenced actually exists) catches what schema validation alone can't, with an automatic retry/repair pass on failure.
-2. **Canonicalization** — extracted entities are deduplicated by normalized label + type (content-addressed IDs), so near-duplicate names don't create orphan nodes. Relationship labels (e.g. `streams_to`/`sends_signals_to`/`provides_alerts_to`) are normalized against a small canonical verb set, so the diagram doesn't accumulate inconsistent phrasing for the same kind of connection.
-3. **Deterministic enrichment** — a rule-based layer fills in requirements (functional/non-functional), security & governance controls, and operational concerns, and links risks to the controls that mitigate them. This keeps the output complete and useful even when the LLM's raw extraction is sparse.
-4. **Visualization** — three separate interactive graph views are rendered (via [pyvis](https://pyvis.readthedocs.io/)) instead of one overloaded diagram: a clean architecture/context view, a risk-traceability overlay, and a governance/requirements overlay.
-5. **Caching** — outputs are cached by a hash of (input text + pipeline version), so repeated identical input doesn't re-trigger an LLM call.
+1. **Retrieval** — one or more input documents are chunked, embedded, and the chunks most relevant to each of 6 fixed extraction categories (actors, components, external systems, relationships, risks, assumptions) are selected via cosine similarity, instead of dumping the whole corpus into one prompt. Below a size threshold this is a no-op passthrough (small single-document input, unaffected).
+2. **Extraction** — the selected text is sent to an LLM with a strict prompt, using schema-constrained structured output (not free-text JSON parsing) to guarantee a valid shape: entities (actors / internal components / external systems), relationships, risks, and assumptions, each with the supporting source sentence(s) attached. A referential-integrity check (every id referenced actually exists) catches what schema validation alone can't, with an automatic retry/repair pass on failure.
+3. **Canonicalization** — extracted entities are deduplicated by normalized label + type (content-addressed IDs), so near-duplicate names don't create orphan nodes. Relationship labels (e.g. `streams_to`/`sends_signals_to`/`provides_alerts_to`) are normalized against a small canonical verb set, so the diagram doesn't accumulate inconsistent phrasing for the same kind of connection.
+4. **Deterministic enrichment** — a rule-based layer fills in requirements (functional/non-functional), security & governance controls, and operational concerns, and links risks to the controls that mitigate them. This keeps the output complete and useful even when the LLM's raw extraction is sparse.
+5. **Visualization** — three separate interactive graph views are rendered (via [pyvis](https://pyvis.readthedocs.io/)) instead of one overloaded diagram: a clean architecture/context view, a risk-traceability overlay, and a governance/requirements overlay.
+6. **Caching** — outputs are cached by a hash of (input documents + pipeline version), so repeated identical input doesn't re-trigger an LLM call.
 
 ## Tech stack
 
@@ -43,7 +45,7 @@ Provide an OpenAI-compatible API key via the `UPB_AI_GATEWAY_KEY` environment va
 python app_server.py
 ```
 
-Open `http://127.0.0.1:8000`, paste or upload a system description (see `example_system_description.txt` for a sample input describing a hospital patient-monitoring system), and click **Analyze**.
+Open `http://127.0.0.1:8000`, paste text and/or upload one or more `.txt` files (see `example_system_description.txt` for a sample input describing a hospital patient-monitoring system) — multiple files are treated as separate documents and aggregated into one context model — and click **Analyze**.
 
 ## What's built
 
@@ -57,23 +59,24 @@ Open `http://127.0.0.1:8000`, paste or upload a system description (see `example
 - Schema-constrained structured LLM output (Pydantic + strict JSON schema) with a referential-integrity check and an automatic retry/repair loop, replacing free-text JSON parsing
 - Evidence traceability — every extracted entity/relationship/risk/assumption carries the source sentence(s) it came from, visible as hover tooltips in the diagrams, not just buried in the JSON export
 - Relationship-label normalization against a canonical verb set, built from labels actually observed in practice rather than guessed
+- Multi-document input with retrieval — upload several files at once; each is chunked, embedded, and the most relevant chunks per extraction category are selected via cosine similarity rather than concatenating everything into one prompt
 
 ## Evaluation
 
-Extraction quality is measured, not assumed, and changes are measured again after — not just assumed to have helped. `eval_cases.py` holds 5 hand-labeled system descriptions spanning different domains; `run_evals.py` runs the extraction pipeline against each and scores it with fuzzy entity matching (type + token-overlap), relationship-pair matching, and risk/assumption coverage.
+Extraction quality is measured, not assumed, and changes are measured again after — not just assumed to have helped. `eval_cases.py` holds 6 hand-labeled test cases across varied domains, including one multi-document case; `run_evals.py` runs the extraction pipeline against each and scores it with fuzzy entity matching (type + token-overlap), relationship-pair matching, risk/assumption coverage, evidence groundedness, and relationship-label normalization coverage.
 
-Current baseline (macro-average across all 5 cases), after structured output + evidence traceability + relationship-label normalization:
+Current baseline (macro-average across all 6 cases):
 
 | Metric | Score |
 |---|---|
-| Entity precision / recall / F1 | 0.97 / 0.77 / 0.86 |
-| Relationship precision / recall / F1 | 0.81 / 0.85 / 0.83 |
-| Risk coverage | 1.00 |
+| Entity precision / recall / F1 | 0.96 / 0.82 / 0.88 |
+| Relationship precision / recall / F1 | 0.81 / 0.84 / 0.82 |
+| Risk coverage | 0.94 |
 | Assumption coverage | 1.00 |
 | Evidence grounded rate | 1.00 |
-| Relationship label normalized rate | 0.67 |
+| Relationship label normalized rate | 0.47 |
 
-Entity scores barely moved from the structured-output baseline — within normal run-to-run noise, not claimed as a real change. Relationship F1 moved more than that noise band (+0.045), but worth being precise about why: the relationship metric only grades whether the (source, target) entity pair was found, never the label text, so label normalization can't be the direct cause — and a dedup-side-effect hypothesis was checked against the actual data and didn't hold up either. The honest attribution is the combined prompt change (now also requesting evidence) plus ordinary variance, not the normalization specifically. What *is* cleanly attributable, since they're brand-new metrics: evidence grounding at 1.00 (every piece of captured evidence genuinely traces back to the source text) and label-normalization coverage at 0.67 (the fixed canonical-verb table, built from real observed labels, covers about two-thirds of what the model actually produces — the honest limitation of a fixed table vs. a costlier second LLM pass).
+These numbers mix two different things on purpose: 5 single-document cases that should be unaffected by the latest change (retrieval doesn't activate below a word-count threshold), and 1 new multi-document case testing retrieval directly. Checked that separation explicitly rather than reading one blended number — the 5 original cases moved only within already-established run-to-run noise. The multi-document case's own numbers looked weaker in isolation (entity F1 0.79, risk coverage 0.67) until investigated: the "missed" risk was actually extracted almost verbatim but scored just under the matching threshold due to paraphrasing (true coverage: 3/3), and several "unmatched" entities turned out to be gaps in the hand-labeled ground truth, not model errors (checked against the source text, not assumed). The real, separately-verified finding: multi-document aggregation works correctly end-to-end, and the retrieval filtering logic itself is confirmed correct (verified with a controlled test), but this particular test corpus was too small to show retrieval actually discarding irrelevant content in practice — the selection budget exceeded the chunk count, so nothing got filtered out this time.
 
 Run it yourself:
 

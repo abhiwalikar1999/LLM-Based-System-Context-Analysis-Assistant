@@ -226,14 +226,23 @@ def run_one_case(case):
         + [a.evidence for a in graph.assumptions]
     )
 
+    # input_text is either a plain string (Phases 1-3 cases) or a list of
+    # (label, text) documents (Phase 4's multi-document case) -- concatenate
+    # for the grounding check, which just needs one source-text blob.
+    if isinstance(case["input_text"], str):
+        source_text_for_grounding = case["input_text"]
+    else:
+        source_text_for_grounding = "\n\n".join(text for _, text in case["input_text"])
+
     gt = case["ground_truth"]
 
     entity_scores, pred_to_gt = score_entities(predicted_nodes, gt["entities"])
     relationship_scores = score_relationships(predicted_edges, gt["relationships"], gt["entities"], pred_to_gt)
     risk_scores = score_text_coverage(predicted_risks, gt["risks"])
     assumption_scores = score_text_coverage(predicted_assumptions, gt["assumptions"])
-    grounding_scores = score_evidence_grounding(all_evidence, case["input_text"])
+    grounding_scores = score_evidence_grounding(all_evidence, source_text_for_grounding)
     normalization_scores = score_relationship_label_normalization(predicted_edges)
+    retrieval_stats = raw_result.get("_retrieval_stats", {})
 
     return {
         "case_id": case["id"],
@@ -244,6 +253,7 @@ def run_one_case(case):
         "assumption_coverage": assumption_scores,
         "evidence_grounding": grounding_scores,
         "relationship_normalization": normalization_scores,
+        "retrieval_stats": retrieval_stats,
         "raw_llm_result": raw_result,
         "predicted_nodes": predicted_nodes,
         "predicted_edges": predicted_edges,
@@ -277,6 +287,13 @@ def main():
                 f"relationship label normalized={ns['normalized_rate']:.2f} ({ns['normalized']}/{ns['total']})",
                 file=sys.stderr,
             )
+            rstats = result["retrieval_stats"]
+            if rstats.get("retrieval_activated"):
+                print(
+                    f"  retrieval: activated ({rstats['total_words']} words total, "
+                    f"{rstats['selected_chunks']}/{rstats['total_chunks']} chunks selected)",
+                    file=sys.stderr,
+                )
         except Exception as e:
             print(f"  FAILED: {e}", file=sys.stderr)
             traceback.print_exc()

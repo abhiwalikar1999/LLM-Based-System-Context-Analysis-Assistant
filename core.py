@@ -9,10 +9,11 @@ import os
 import json
 import hashlib
 from dataclasses import dataclass
-from typing import List, Dict, Tuple, Optional, Set
+from typing import List, Dict, Tuple, Optional, Set, Union
 
 from pyvis.network import Network
 from llm_engine import ask_chatgpt
+from retrieval import retrieve_relevant_chunks
 
 
 # Data model
@@ -59,7 +60,7 @@ class ContextGraph:
         self.assumptions: List[Assumption] = []
 
 
-GRAPH_VERSION = "v8.0-evidence-traceability-and-relationship-normalization"
+GRAPH_VERSION = "v9.0-retrieval-and-multi-document-aggregation"
 
 
 
@@ -172,12 +173,24 @@ def dedupe_edges(edges: List[Edge]) -> List[Edge]:
 # LLM -- base graph 
 
 
-def build_context_graph(doc_text: str) -> Tuple[dict, ContextGraph]:
+def build_context_graph(doc_text: Union[str, List[Tuple[str, str]]]) -> Tuple[dict, ContextGraph]:
     """
+    doc_text: either a single input string (existing behavior, unchanged),
+    or a list of (document_label, document_text) pairs for multi-document
+    input (Phase 4). A plain string is wrapped as a single-document list
+    internally, so every call site from before Phase 4 keeps working
+    identically -- retrieval only activates once the combined word count
+    passes retrieval.SIZE_THRESHOLD_WORDS (see retrieval.py), well above
+    any of this project's existing single-document eval cases.
+
     Canonicalize LLM entities by (label,type) so near-duplicates don't create orphan nodes.
     Rewrites relationship endpoints and risk/assumption related_nodes to canonical ids.
     """
-    result = ask_chatgpt(doc_text)
+    documents = [("input", doc_text)] if isinstance(doc_text, str) else doc_text
+    selected_text, retrieval_stats = retrieve_relevant_chunks(documents)
+
+    result = ask_chatgpt(selected_text)
+    result["_retrieval_stats"] = retrieval_stats
     graph = ContextGraph()
     id_map: Dict[str, str] = {}
 
@@ -754,11 +767,17 @@ def export_interactive_graphs(graph: ContextGraph, out_context_html: str, out_ri
 # Pipeline
 
 
-def run_pipeline(input_text: str, out_dir: str = "output") -> dict:
+def run_pipeline(input_text: Union[str, List[Tuple[str, str]]], out_dir: str = "output") -> dict:
     os.makedirs(out_dir, exist_ok=True)
 
-    # Cache key includes version so updates actually regenerate outputs
-    h = _sha256(input_text + "|" + GRAPH_VERSION)
+    # Cache key includes version so updates actually regenerate outputs. For
+    # multi-document input, hash each (label, text) pair in order so the
+    # same set of documents always maps to the same cache entry.
+    if isinstance(input_text, str):
+        cache_payload = input_text
+    else:
+        cache_payload = "\x1e".join(f"{label}\x1f{text}" for label, text in input_text)
+    h = _sha256(cache_payload + "|" + GRAPH_VERSION)
     run_dir = os.path.join(out_dir, h[:12])
     os.makedirs(run_dir, exist_ok=True)
 
