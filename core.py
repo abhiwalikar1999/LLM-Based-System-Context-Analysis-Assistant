@@ -23,6 +23,7 @@ class Node:
     id: str
     label: str
     type: str  # actor, component, external_system, requirement
+    evidence: str = ""  # source sentence(s) this node was extracted from, when known
 
 
 @dataclass
@@ -30,6 +31,7 @@ class Edge:
     source: str
     target: str
     label: str
+    evidence: str = ""
 
 
 @dataclass
@@ -38,6 +40,7 @@ class Risk:
     description: str
     severity: str
     related_nodes: List[str]
+    evidence: str = ""
 
 
 @dataclass
@@ -45,6 +48,7 @@ class Assumption:
     id: str
     description: str
     related_nodes: List[str]
+    evidence: str = ""
 
 
 class ContextGraph:
@@ -55,7 +59,7 @@ class ContextGraph:
         self.assumptions: List[Assumption] = []
 
 
-GRAPH_VERSION = "v7.0-uc3-clean-context-no-overlap-no-islands"
+GRAPH_VERSION = "v8.0-evidence-traceability-and-relationship-normalization"
 
 
 
@@ -87,7 +91,7 @@ def _find_existing_node_id(graph: ContextGraph, label: str, node_type: Optional[
     return None
 
 
-def ensure_node(graph: ContextGraph, label: str, node_type: str, node_id: Optional[str] = None) -> str:
+def ensure_node(graph: ContextGraph, label: str, node_type: str, node_id: Optional[str] = None, evidence: str = "") -> str:
     existing = _find_existing_node_id(graph, label, node_type)
     if existing:
         return existing
@@ -96,14 +100,61 @@ def ensure_node(graph: ContextGraph, label: str, node_type: str, node_id: Option
     if nid in graph.nodes:
         nid = _safe_id(f"{label}::{nid}", node_type)
 
-    graph.nodes[nid] = Node(id=nid, label=label, type=node_type)
+    graph.nodes[nid] = Node(id=nid, label=label, type=node_type, evidence=evidence)
     return nid
 
 
-def add_edge(graph: ContextGraph, source_id: str, target_id: str, label: str):
+def add_edge(graph: ContextGraph, source_id: str, target_id: str, label: str, evidence: str = ""):
     if source_id not in graph.nodes or target_id not in graph.nodes:
         return
-    graph.edges.append(Edge(source=source_id, target=target_id, label=label))
+    graph.edges.append(Edge(source=source_id, target=target_id, label=label, evidence=evidence))
+
+
+def _tooltip(label: str, evidence: str) -> str:
+    """Hover-tooltip text for a pyvis node/edge: label alone, or label + source evidence when known."""
+    if not evidence:
+        return label
+    return f"{label}\n\nEvidence: {evidence}"
+
+
+# Relationship-label normalization (Phase 3): the LLM phrases the same kind
+# of connection inconsistently across runs/domains (e.g. "streams_to" vs
+# "sends_signals_to" vs "provides_alerts_to" -- exactly the gap the team's
+# own Implementation report flagged as future work). This is a fixed lookup
+# table, not a second LLM pass: deterministic, free, and consistent with how
+# the rest of this file already layers deterministic post-processing on top
+# of LLM output. Built from the labels actually observed across this
+# project's eval runs (see docs/PROGRESS.md), not guessed. Labels not in the
+# table are left unchanged rather than bucketed into a meaningless catch-all
+# -- the eval harness measures what fraction get normalized (see run_evals.py).
+RELATIONSHIP_LABEL_MAP = {
+    # general data/control flow
+    "transmits": "sends_to", "forwards": "sends_to", "streams": "sends_to",
+    "provides": "sends_to", "provides_live_data": "sends_to", "reports_status": "sends_to",
+    "hands_off": "sends_to", "sends_order": "sends_to", "sends_control_commands": "sends_to",
+    "sends_schedule_updates": "sends_to", "sends_transaction_to": "sends_to",
+    "sends_location_data": "sends_to", "sends_temperature_readings": "sends_to",
+    "delivers": "sends_to", "receives": "sends_to", "transfers_funds_via": "sends_to",
+    "sends_signals_to": "sends_to", "provides_alerts_to": "sends_to",
+    # service invocation / RPC-like calls
+    "calls": "calls", "queries": "calls", "initiates_transfer": "calls", "configures_device": "calls",
+    # persistence
+    "stores": "stores_in", "stores_route_history": "stores_in", "writes_to": "stores_in",
+    "reads_writes": "stores_in",
+    # event/alert propagation
+    "triggers": "triggers", "triggers_alert": "triggers", "notifies": "triggers",
+    # authentication
+    "authenticates": "authenticates_via", "authenticates_via": "authenticates_via",
+    # human oversight actions
+    "reviews": "reviews", "acknowledges": "reviews", "flags_for_review": "reviews",
+    "flags_for_review_on": "reviews", "flags_for_review_in": "reviews",
+    # direct device/actuator control
+    "controls": "controls",
+}
+
+
+def normalize_relationship_label(label: str) -> str:
+    return RELATIONSHIP_LABEL_MAP.get(_norm(label).replace(" ", "_"), label)
 
 
 def dedupe_edges(edges: List[Edge]) -> List[Edge]:
@@ -132,14 +183,14 @@ def build_context_graph(doc_text: str) -> Tuple[dict, ContextGraph]:
 
     # Entities
     for ent in result.get("entities", []):
-        cid = ensure_node(graph, ent["label"], ent["type"])
+        cid = ensure_node(graph, ent["label"], ent["type"], evidence=ent.get("evidence", ""))
         id_map[ent["id"]] = cid
 
     # Relationships
     for rel in result.get("relationships", []):
         s = id_map.get(rel["source_id"], rel["source_id"])
         t = id_map.get(rel["target_id"], rel["target_id"])
-        add_edge(graph, s, t, rel["label"])
+        add_edge(graph, s, t, normalize_relationship_label(rel["label"]), evidence=rel.get("evidence", ""))
 
     # Risks / assumptions
     for r in result.get("risks", []):
@@ -148,7 +199,8 @@ def build_context_graph(doc_text: str) -> Tuple[dict, ContextGraph]:
             id=r.get("id", "R?"),
             description=r.get("description", ""),
             severity=r.get("severity", "medium"),
-            related_nodes=related
+            related_nodes=related,
+            evidence=r.get("evidence", "")
         ))
 
     for a in result.get("assumptions", []):
@@ -156,7 +208,8 @@ def build_context_graph(doc_text: str) -> Tuple[dict, ContextGraph]:
         graph.assumptions.append(Assumption(
             id=a.get("id", "A?"),
             description=a.get("description", ""),
-            related_nodes=related
+            related_nodes=related,
+            evidence=a.get("evidence", "")
         ))
 
     graph.edges = dedupe_edges(graph.edges)
@@ -537,7 +590,7 @@ def export_interactive_graphs(graph: ContextGraph, out_context_html: str, out_ri
             net1.add_node(
                 n.id,
                 label=f"{n.label}\n({n.type})",
-                title=n.label,
+                title=_tooltip(n.label, n.evidence),
                 color=colors.get(n.type, "#cccccc"),
                 shape="box",
                 margin=10,
@@ -549,7 +602,7 @@ def export_interactive_graphs(graph: ContextGraph, out_context_html: str, out_ri
 
     for e in graph.edges:
         if e.source in ctx_nodes and e.target in ctx_nodes:
-            net1.add_edge(e.source, e.target, title=e.label, arrows="to")
+            net1.add_edge(e.source, e.target, title=_tooltip(e.label, e.evidence), arrows="to")
 
     net1.write_html(out_context_html)
 
@@ -600,7 +653,7 @@ def export_interactive_graphs(graph: ContextGraph, out_context_html: str, out_ri
     # Add context nodes first
     for nid in ctx_nodes:
         n = graph.nodes[nid]
-        _add_node_overlay(net2, nid, f"{n.label}\n({n.type})", n.label)
+        _add_node_overlay(net2, nid, f"{n.label}\n({n.type})", _tooltip(n.label, n.evidence))
 
     # Add a risk hub + limited risk nodes
     hub = ensure_node(graph, "Risk Register", "requirement")
@@ -631,7 +684,7 @@ def export_interactive_graphs(graph: ContextGraph, out_context_html: str, out_ri
     shown2 = set(ctx_nodes) | set(risk_req_nodes[:MAX_RISKS]) | {hub}
     for e in graph.edges:
         if e.source in shown2 and e.target in shown2:
-            net2.add_edge(e.source, e.target, title=e.label, arrows="to")
+            net2.add_edge(e.source, e.target, title=_tooltip(e.label, e.evidence), arrows="to")
 
     net2.write_html(out_risk_html)
 
@@ -640,7 +693,7 @@ def export_interactive_graphs(graph: ContextGraph, out_context_html: str, out_ri
 
     for nid in ctx_nodes:
         n = graph.nodes[nid]
-        _add_node_overlay(net3, nid, f"{n.label}\n({n.type})", n.label)
+        _add_node_overlay(net3, nid, f"{n.label}\n({n.type})", _tooltip(n.label, n.evidence))
 
     # Include requirement nodes by prefix/hubs
     include_prefixes = (
@@ -686,13 +739,13 @@ def export_interactive_graphs(graph: ContextGraph, out_context_html: str, out_ri
 
     for nid in ops_nodes[:MAX_OPS]:
         n = graph.nodes[nid]
-        _add_node_overlay(net3, nid, f"{n.label}\n({n.type})", n.label)
+        _add_node_overlay(net3, nid, f"{n.label}\n({n.type})", _tooltip(n.label, n.evidence))
 
     shown3 = set(ctx_nodes) | set(req_nodes[:MAX_REQ]) | set(ops_nodes[:MAX_OPS])
 
     for e in graph.edges:
         if e.source in shown3 and e.target in shown3:
-            net3.add_edge(e.source, e.target, title=e.label, arrows="to")
+            net3.add_edge(e.source, e.target, title=_tooltip(e.label, e.evidence), arrows="to")
 
     net3.write_html(out_governance_html)
 

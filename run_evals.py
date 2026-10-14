@@ -31,6 +31,25 @@
 #     enough token overlap to count as "found"? We don't penalize the model
 #     for listing additional, reasonable risks we didn't happen to write
 #     down -- that's not the same kind of error as inventing a component.
+#
+# Phase 3 additions:
+#   - Evidence groundedness: for every extracted item (now that llm_engine.py
+#     asks the model for an "evidence" sentence per item), check whether the
+#     evidence text is actually drawn from the INPUT text, not invented. We
+#     use token containment (what fraction of the evidence's own words
+#     appear somewhere in the source document), not symmetric Jaccard against
+#     the whole document -- Jaccard's denominator would be dominated by the
+#     document's own length and make even a perfect verbatim quote score
+#     low. This is a cheap vocabulary-level check, not a real
+#     entailment/correctness check (it can't tell you the evidence is
+#     *relevant* to the claim, only that its words exist in the source) --
+#     documented as a known simplification, same spirit as everything else
+#     in this file.
+#   - Relationship-label normalization coverage: what fraction of predicted
+#     relationship labels are one of core.py's RELATIONSHIP_LABEL_MAP's
+#     canonical target verbs (vs. left as an unmapped, free-form label).
+#     Measures vocabulary consistency directly, separately from whether the
+#     (source, target) pair itself was correct.
 
 import json
 import os
@@ -41,10 +60,12 @@ import traceback
 from dataclasses import asdict
 
 from eval_cases import EVAL_CASES
-from core import build_context_graph
+from core import build_context_graph, RELATIONSHIP_LABEL_MAP
 
 ENTITY_MATCH_THRESHOLD = 0.34
 TEXT_COVERAGE_THRESHOLD = 0.25
+GROUNDING_CONTAINMENT_THRESHOLD = 0.6
+CANONICAL_RELATIONSHIP_LABELS = set(RELATIONSHIP_LABEL_MAP.values())
 
 STOPWORDS = {"the", "a", "an", "of", "and", "to", "for", "in", "on", "via"}
 
@@ -162,6 +183,34 @@ def score_text_coverage(predicted_texts, gt_texts, threshold=TEXT_COVERAGE_THRES
     return {"recall": covered / len(gt_texts), "covered": covered, "gt_count": len(gt_texts)}
 
 
+def containment(evidence_tokens: set, source_tokens: set) -> float:
+    """What fraction of the evidence's own words appear in the source document."""
+    if not evidence_tokens:
+        return 0.0
+    return len(evidence_tokens & source_tokens) / len(evidence_tokens)
+
+
+def score_evidence_grounding(evidence_texts, source_text, threshold=GROUNDING_CONTAINMENT_THRESHOLD):
+    """Fraction of (non-empty) evidence strings whose words are substantially drawn from source_text."""
+    non_empty = [e for e in evidence_texts if e and e.strip()]
+    if not evidence_texts:
+        return {"grounded_rate": 0.0, "grounded": 0, "non_empty": 0, "total": 0}
+    source_tokens = tokenize(source_text)
+    grounded = sum(1 for e in non_empty if containment(tokenize(e), source_tokens) >= threshold)
+    return {
+        "grounded_rate": grounded / len(evidence_texts),
+        "grounded": grounded, "non_empty": len(non_empty), "total": len(evidence_texts),
+    }
+
+
+def score_relationship_label_normalization(predicted_edges):
+    """Fraction of predicted relationship labels that are one of the canonical target verbs."""
+    if not predicted_edges:
+        return {"normalized_rate": 1.0, "normalized": 0, "total": 0}
+    normalized = sum(1 for e in predicted_edges if e["label"] in CANONICAL_RELATIONSHIP_LABELS)
+    return {"normalized_rate": normalized / len(predicted_edges), "normalized": normalized, "total": len(predicted_edges)}
+
+
 def run_one_case(case):
     raw_result, graph = build_context_graph(case["input_text"])
 
@@ -170,12 +219,21 @@ def run_one_case(case):
     predicted_risks = [r.description for r in graph.risks]
     predicted_assumptions = [a.description for a in graph.assumptions]
 
+    all_evidence = (
+        [n.evidence for n in graph.nodes.values()]
+        + [e.evidence for e in graph.edges]
+        + [r.evidence for r in graph.risks]
+        + [a.evidence for a in graph.assumptions]
+    )
+
     gt = case["ground_truth"]
 
     entity_scores, pred_to_gt = score_entities(predicted_nodes, gt["entities"])
     relationship_scores = score_relationships(predicted_edges, gt["relationships"], gt["entities"], pred_to_gt)
     risk_scores = score_text_coverage(predicted_risks, gt["risks"])
     assumption_scores = score_text_coverage(predicted_assumptions, gt["assumptions"])
+    grounding_scores = score_evidence_grounding(all_evidence, case["input_text"])
+    normalization_scores = score_relationship_label_normalization(predicted_edges)
 
     return {
         "case_id": case["id"],
@@ -184,6 +242,8 @@ def run_one_case(case):
         "relationship_scores": relationship_scores,
         "risk_coverage": risk_scores,
         "assumption_coverage": assumption_scores,
+        "evidence_grounding": grounding_scores,
+        "relationship_normalization": normalization_scores,
         "raw_llm_result": raw_result,
         "predicted_nodes": predicted_nodes,
         "predicted_edges": predicted_edges,
@@ -206,12 +266,15 @@ def main():
             result = run_one_case(case)
             results.append(result)
             es, rs = result["entity_scores"], result["relationship_scores"]
+            gs, ns = result["evidence_grounding"], result["relationship_normalization"]
             print(
                 f"  entities P={es['precision']:.2f} R={es['recall']:.2f} F1={es['f1']:.2f} "
                 f"({es['matched']}/{es['gt_count']} matched, {es['predicted_count']} predicted) | "
                 f"relationships P={rs['precision']:.2f} R={rs['recall']:.2f} F1={rs['f1']:.2f} | "
                 f"risk coverage={result['risk_coverage']['recall']:.2f} "
-                f"assumption coverage={result['assumption_coverage']['recall']:.2f}",
+                f"assumption coverage={result['assumption_coverage']['recall']:.2f} | "
+                f"evidence grounded={gs['grounded_rate']:.2f} ({gs['grounded']}/{gs['total']}) | "
+                f"relationship label normalized={ns['normalized_rate']:.2f} ({ns['normalized']}/{ns['total']})",
                 file=sys.stderr,
             )
         except Exception as e:
@@ -231,6 +294,8 @@ def main():
             "relationship_f1": macro_average([r["relationship_scores"]["f1"] for r in results]),
             "risk_coverage": macro_average([r["risk_coverage"]["recall"] for r in results]),
             "assumption_coverage": macro_average([r["assumption_coverage"]["recall"] for r in results]),
+            "evidence_grounded_rate": macro_average([r["evidence_grounding"]["grounded_rate"] for r in results]),
+            "relationship_label_normalized_rate": macro_average([r["relationship_normalization"]["normalized_rate"] for r in results]),
             "cases_run": len(results),
             "cases_failed": len(failures),
         }

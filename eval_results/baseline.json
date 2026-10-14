@@ -1,13 +1,15 @@
 {
   "aggregate": {
-    "entity_precision": 0.9666666666666666,
-    "entity_recall": 0.7679292929292929,
-    "entity_f1": 0.8547619047619047,
-    "relationship_precision": 0.7558730158730158,
-    "relationship_recall": 0.8066666666666666,
-    "relationship_f1": 0.7795173453996983,
+    "entity_precision": 0.9714285714285713,
+    "entity_recall": 0.7707070707070707,
+    "entity_f1": 0.8583333333333334,
+    "relationship_precision": 0.8066666666666666,
+    "relationship_recall": 0.8533333333333333,
+    "relationship_f1": 0.8250505050505051,
     "risk_coverage": 1.0,
     "assumption_coverage": 1.0,
+    "evidence_grounded_rate": 1.0,
+    "relationship_label_normalized_rate": 0.6733333333333333,
     "cases_run": 5,
     "cases_failed": 0
   },
@@ -24,11 +26,11 @@
         "gt_count": 11
       },
       "relationship_scores": {
-        "precision": 0.8888888888888888,
+        "precision": 0.8,
         "recall": 1.0,
-        "f1": 0.9411764705882353,
+        "f1": 0.888888888888889,
         "matched": 8,
-        "predicted_count": 9,
+        "predicted_count": 10,
         "gt_count": 8
       },
       "risk_coverage": {
@@ -41,104 +43,140 @@
         "covered": 2,
         "gt_count": 2
       },
+      "evidence_grounding": {
+        "grounded_rate": 1.0,
+        "grounded": 24,
+        "non_empty": 24,
+        "total": 24
+      },
+      "relationship_normalization": {
+        "normalized_rate": 0.8,
+        "normalized": 8,
+        "total": 10
+      },
       "raw_llm_result": {
         "entities": [
           {
             "id": "eeg_ecg_sensors",
             "label": "EEG/ECG sensors",
-            "type": "component"
+            "type": "component",
+            "evidence": "A patient wears EEG/ECG sensors during monitoring."
           },
           {
             "id": "patient_monitoring_device",
             "label": "Patient Monitoring Device",
-            "type": "component"
+            "type": "component",
+            "evidence": "Sensors transmit signals to a bedside Patient Monitoring Device."
           },
           {
             "id": "streaming_gateway",
             "label": "Streaming Gateway",
-            "type": "component"
+            "type": "component",
+            "evidence": "The Patient Monitoring Device forwards signals to the Streaming Gateway over the hospital network."
           },
           {
             "id": "real_time_analytics_backend",
             "label": "Real-Time Analytics Backend",
-            "type": "component"
+            "type": "component",
+            "evidence": "The Streaming Gateway streams signals to the Real-Time Analytics Backend."
           },
           {
             "id": "notification_service",
             "label": "Notification Service",
-            "type": "component"
+            "type": "component",
+            "evidence": "The Real-Time Analytics Backend triggers the Notification Service, which delivers alerts to nurses and doctors."
           },
           {
             "id": "clinical_monitoring_dashboard",
             "label": "Clinical Monitoring Dashboard",
-            "type": "component"
+            "type": "component",
+            "evidence": "Nurses and doctors review alert details and trends in the Clinical Monitoring Dashboard and acknowledge alerts."
           },
           {
             "id": "ehr",
-            "label": "Electronic Health Record (EHR)",
-            "type": "external_system"
+            "label": "Electronic Health Record (EHR) system",
+            "type": "external_system",
+            "evidence": "The Real-Time Analytics Backend stores analysis summaries and alert metadata in the Electronic Health Record (EHR) system."
           },
           {
             "id": "hospital_identity_provider",
             "label": "Hospital Identity Provider",
-            "type": "external_system"
+            "type": "external_system",
+            "evidence": "Users of the Clinical Monitoring Dashboard authenticate via the Hospital Identity Provider."
           },
           {
             "id": "nurses",
             "label": "nurses",
-            "type": "actor"
+            "type": "actor",
+            "evidence": "Nurses and doctors review alert details and trends in the Clinical Monitoring Dashboard and acknowledge alerts."
           },
           {
             "id": "doctors",
             "label": "doctors",
-            "type": "actor"
+            "type": "actor",
+            "evidence": "Nurses and doctors review alert details and trends in the Clinical Monitoring Dashboard and acknowledge alerts."
           }
         ],
         "relationships": [
           {
             "source_id": "eeg_ecg_sensors",
             "target_id": "patient_monitoring_device",
-            "label": "transmits"
+            "label": "transmits",
+            "evidence": "Sensors transmit signals to a bedside Patient Monitoring Device."
           },
           {
             "source_id": "patient_monitoring_device",
             "target_id": "streaming_gateway",
-            "label": "forwards"
+            "label": "forwards",
+            "evidence": "The Patient Monitoring Device forwards signals to the Streaming Gateway over the hospital network."
           },
           {
             "source_id": "streaming_gateway",
             "target_id": "real_time_analytics_backend",
-            "label": "streams"
+            "label": "streams",
+            "evidence": "The Streaming Gateway streams signals to the Real-Time Analytics Backend."
           },
           {
             "source_id": "real_time_analytics_backend",
             "target_id": "notification_service",
-            "label": "triggers"
+            "label": "triggers",
+            "evidence": "The Real-Time Analytics Backend triggers the Notification Service, which delivers alerts to nurses and doctors."
           },
           {
             "source_id": "notification_service",
             "target_id": "nurses",
-            "label": "delivers"
+            "label": "delivers",
+            "evidence": "The Notification Service, which delivers alerts to nurses and doctors."
           },
           {
             "source_id": "notification_service",
             "target_id": "doctors",
-            "label": "delivers"
-          },
-          {
-            "source_id": "real_time_analytics_backend",
-            "target_id": "clinical_monitoring_dashboard",
-            "label": "provides"
+            "label": "delivers",
+            "evidence": "The Notification Service, which delivers alerts to nurses and doctors."
           },
           {
             "source_id": "real_time_analytics_backend",
             "target_id": "ehr",
-            "label": "stores"
+            "label": "stores",
+            "evidence": "The Real-Time Analytics Backend stores analysis summaries and alert metadata in the Electronic Health Record (EHR) system."
+          },
+          {
+            "source_id": "clinical_monitoring_dashboard",
+            "target_id": "nurses",
+            "label": "used_by",
+            "evidence": "Nurses and doctors review alert details and trends in the Clinical Monitoring Dashboard and acknowledge alerts."
+          },
+          {
+            "source_id": "clinical_monitoring_dashboard",
+            "target_id": "doctors",
+            "label": "used_by",
+            "evidence": "Nurses and doctors review alert details and trends in the Clinical Monitoring Dashboard and acknowledge alerts."
           },
           {
             "source_id": "clinical_monitoring_dashboard",
             "target_id": "hospital_identity_provider",
-            "label": "authenticates_via"
+            "label": "authenticates_via",
+            "evidence": "Users of the Clinical Monitoring Dashboard authenticate via the Hospital Identity Provider."
           }
         ],
         "risks": [
@@ -151,7 +189,8 @@
               "notification_service",
               "nurses",
               "doctors"
-            ]
+            ],
+            "evidence": "False positive alerts may lead to alarm fatigue."
           },
           {
             "id": "r2",
@@ -162,7 +201,8 @@
               "real_time_analytics_backend",
               "patient_monitoring_device",
               "eeg_ecg_sensors"
-            ]
+            ],
+            "evidence": "Network outages may interrupt monitoring and delay alerts."
           }
         ],
         "assumptions": [
@@ -172,9 +212,9 @@
             "related_nodes": [
               "streaming_gateway",
               "real_time_analytics_backend",
-              "patient_monitoring_device",
-              "eeg_ecg_sensors"
-            ]
+              "patient_monitoring_device"
+            ],
+            "evidence": "The hospital network provides reliable connectivity."
           },
           {
             "id": "a2",
@@ -182,9 +222,9 @@
             "related_nodes": [
               "nurses",
               "doctors",
-              "notification_service",
               "clinical_monitoring_dashboard"
-            ]
+            ],
+            "evidence": "Clinicians respond to critical alerts within an acceptable time window."
           }
         ]
       },
@@ -220,8 +260,8 @@
           "type": "component"
         },
         {
-          "id": "d73212540798",
-          "label": "Electronic Health Record (EHR)",
+          "id": "a3673979b1c1",
+          "label": "Electronic Health Record (EHR) system",
           "type": "external_system"
         },
         {
@@ -244,17 +284,17 @@
         {
           "source": "a03ef89c1a43",
           "target": "55e52d06e8b4",
-          "label": "transmits"
+          "label": "sends_to"
         },
         {
           "source": "55e52d06e8b4",
           "target": "134aae120207",
-          "label": "forwards"
+          "label": "sends_to"
         },
         {
           "source": "134aae120207",
           "target": "bbe619e26bb3",
-          "label": "streams"
+          "label": "sends_to"
         },
         {
           "source": "bbe619e26bb3",
@@ -264,22 +304,27 @@
         {
           "source": "cfb41dfd4764",
           "target": "6937c850e9b8",
-          "label": "delivers"
+          "label": "sends_to"
         },
         {
           "source": "cfb41dfd4764",
           "target": "4f1e23b608e6",
-          "label": "delivers"
+          "label": "sends_to"
         },
         {
           "source": "bbe619e26bb3",
-          "target": "e223cc1275a5",
-          "label": "provides"
+          "target": "a3673979b1c1",
+          "label": "stores_in"
         },
         {
-          "source": "bbe619e26bb3",
-          "target": "d73212540798",
-          "label": "stores"
+          "source": "e223cc1275a5",
+          "target": "6937c850e9b8",
+          "label": "used_by"
+        },
+        {
+          "source": "e223cc1275a5",
+          "target": "4f1e23b608e6",
+          "label": "used_by"
         },
         {
           "source": "e223cc1275a5",
@@ -308,11 +353,11 @@
         "gt_count": 9
       },
       "relationship_scores": {
-        "precision": 0.8571428571428571,
+        "precision": 1.0,
         "recall": 1.0,
-        "f1": 0.923076923076923,
+        "f1": 1.0,
         "matched": 6,
-        "predicted_count": 7,
+        "predicted_count": 6,
         "gt_count": 6
       },
       "risk_coverage": {
@@ -325,79 +370,98 @@
         "covered": 2,
         "gt_count": 2
       },
+      "evidence_grounding": {
+        "grounded_rate": 1.0,
+        "grounded": 17,
+        "non_empty": 17,
+        "total": 17
+      },
+      "relationship_normalization": {
+        "normalized_rate": 0.8333333333333334,
+        "normalized": 5,
+        "total": 6
+      },
       "raw_llm_result": {
         "entities": [
           {
             "id": "web_storefront",
             "label": "Web Storefront",
-            "type": "component"
+            "type": "component",
+            "evidence": "Customers browse and purchase books through the Web Storefront."
           },
           {
             "id": "order_service",
             "label": "Order Service",
-            "type": "component"
+            "type": "component",
+            "evidence": "When a customer checks out, the Web Storefront sends the order to the Order Service, which records it and calls the Payment Gateway (an external third-party processor) to charge the customer's card."
           },
           {
             "id": "payment_gateway",
             "label": "Payment Gateway",
-            "type": "external_system"
+            "type": "external_system",
+            "evidence": "the Order Service calls the Payment Gateway (an external third-party processor) to charge the customer's card."
           },
           {
             "id": "inventory_service",
             "label": "Inventory Service",
-            "type": "component"
+            "type": "component",
+            "evidence": "Once payment succeeds, the Order Service notifies the Inventory Service to reserve stock for the shipped items."
           },
           {
             "id": "inventory_database",
             "label": "Inventory Database",
-            "type": "component"
+            "type": "component",
+            "evidence": "The Inventory Service tracks stock levels in the Inventory Database."
           },
           {
             "id": "shipping_partner",
             "label": "Shipping Partner",
-            "type": "external_system"
+            "type": "external_system",
+            "evidence": "The Order Service also hands off fulfillment details to the Shipping Partner, an external logistics company, who delivers the package and reports delivery status back."
           },
           {
             "id": "admin_portal",
             "label": "Admin Portal",
-            "type": "component"
+            "type": "component",
+            "evidence": "Store administrators manage the book catalog and pricing through the Admin Portal, which writes directly to the Inventory Database."
           }
         ],
         "relationships": [
           {
             "source_id": "web_storefront",
             "target_id": "order_service",
-            "label": "sends_order"
+            "label": "sends_order",
+            "evidence": "When a customer checks out, the Web Storefront sends the order to the Order Service, which records it and calls the Payment Gateway (an external third-party processor) to charge the customer's card."
           },
           {
             "source_id": "order_service",
             "target_id": "payment_gateway",
-            "label": "calls"
+            "label": "calls",
+            "evidence": "the Order Service calls the Payment Gateway (an external third-party processor) to charge the customer's card."
           },
           {
             "source_id": "order_service",
             "target_id": "inventory_service",
-            "label": "notifies"
+            "label": "notifies",
+            "evidence": "Once payment succeeds, the Order Service notifies the Inventory Service to reserve stock for the shipped items."
           },
           {
             "source_id": "inventory_service",
             "target_id": "inventory_database",
-            "label": "reads_writes"
+            "label": "tracks",
+            "evidence": "The Inventory Service tracks stock levels in the Inventory Database."
           },
           {
             "source_id": "order_service",
             "target_id": "shipping_partner",
-            "label": "hands_off"
-          },
-          {
-            "source_id": "shipping_partner",
-            "target_id": "order_service",
-            "label": "reports_status"
+            "label": "hands_off",
+            "evidence": "The Order Service also hands off fulfillment details to the Shipping Partner, an external logistics company, who delivers the package and reports delivery status back."
           },
           {
             "source_id": "admin_portal",
             "target_id": "inventory_database",
-            "label": "writes_to"
+            "label": "writes_to",
+            "evidence": "Store administrators manage the book catalog and pricing through the Admin Portal, which writes directly to the Inventory Database."
           }
         ],
         "risks": [
@@ -407,16 +471,17 @@
             "severity": "high",
             "related_nodes": [
               "payment_gateway"
-            ]
+            ],
+            "evidence": "The Payment Gateway may become unavailable, blocking all checkouts."
           },
           {
             "id": "r2",
             "description": "The Inventory Database may show stock as available when it has actually been oversold due to concurrent orders.",
             "severity": "high",
             "related_nodes": [
-              "inventory_database",
-              "inventory_service"
-            ]
+              "inventory_database"
+            ],
+            "evidence": "The Inventory Database may show stock as available when it has actually been oversold due to concurrent orders."
           }
         ],
         "assumptions": [
@@ -425,14 +490,16 @@
             "description": "The Payment Gateway maintains PCI-DSS compliance.",
             "related_nodes": [
               "payment_gateway"
-            ]
+            ],
+            "evidence": "The Payment Gateway maintains PCI-DSS compliance."
           },
           {
             "id": "a2",
             "description": "The Shipping Partner's API remains available during peak sales periods.",
             "related_nodes": [
               "shipping_partner"
-            ]
+            ],
+            "evidence": "The Shipping Partner's API remains available during peak sales periods."
           }
         ]
       },
@@ -477,7 +544,7 @@
         {
           "source": "dca1da56c173",
           "target": "8e658e02893a",
-          "label": "sends_order"
+          "label": "sends_to"
         },
         {
           "source": "8e658e02893a",
@@ -487,27 +554,22 @@
         {
           "source": "8e658e02893a",
           "target": "a10fce101960",
-          "label": "notifies"
+          "label": "triggers"
         },
         {
           "source": "a10fce101960",
           "target": "cfc2fe8c09d7",
-          "label": "reads_writes"
+          "label": "tracks"
         },
         {
           "source": "8e658e02893a",
           "target": "043ea2450713",
-          "label": "hands_off"
-        },
-        {
-          "source": "043ea2450713",
-          "target": "8e658e02893a",
-          "label": "reports_status"
+          "label": "sends_to"
         },
         {
           "source": "27b7c2f9c217",
           "target": "cfc2fe8c09d7",
-          "label": "writes_to"
+          "label": "stores_in"
         }
       ],
       "predicted_risks": [
@@ -523,19 +585,19 @@
       "case_id": "smart_home_thermostat",
       "domain": "IoT / smart home",
       "entity_scores": {
-        "precision": 0.8333333333333334,
-        "recall": 0.625,
-        "f1": 0.7142857142857143,
-        "matched": 5,
+        "precision": 1.0,
+        "recall": 0.75,
+        "f1": 0.8571428571428571,
+        "matched": 6,
         "predicted_count": 6,
         "gt_count": 8
       },
       "relationship_scores": {
-        "precision": 0.6,
-        "recall": 0.6,
-        "f1": 0.6,
-        "matched": 3,
-        "predicted_count": 5,
+        "precision": 0.8333333333333334,
+        "recall": 1.0,
+        "f1": 0.9090909090909091,
+        "matched": 5,
+        "predicted_count": 6,
         "gt_count": 5
       },
       "risk_coverage": {
@@ -548,86 +610,115 @@
         "covered": 2,
         "gt_count": 2
       },
+      "evidence_grounding": {
+        "grounded_rate": 1.0,
+        "grounded": 16,
+        "non_empty": 16,
+        "total": 16
+      },
+      "relationship_normalization": {
+        "normalized_rate": 0.3333333333333333,
+        "normalized": 2,
+        "total": 6
+      },
       "raw_llm_result": {
         "entities": [
           {
             "id": "ecothem_mobile_app",
             "label": "EcoTherm Mobile App",
-            "type": "actor"
+            "type": "component",
+            "evidence": "Homeowners control their thermostat remotely through the EcoTherm Mobile App, which communicates with the Cloud Backend over the internet."
           },
           {
             "id": "cloud_backend",
             "label": "Cloud Backend",
-            "type": "component"
+            "type": "component",
+            "evidence": "The Thermostat Device, installed in the home, continuously sends temperature readings to the Cloud Backend and receives updated schedules and target temperatures in return."
           },
           {
             "id": "thermostat_device",
             "label": "Thermostat Device",
-            "type": "component"
+            "type": "component",
+            "evidence": "The Thermostat Device, installed in the home, continuously sends temperature readings to the Cloud Backend and receives updated schedules and target temperatures in return."
           },
           {
             "id": "hvac_unit",
             "label": "HVAC Unit",
-            "type": "component"
+            "type": "component",
+            "evidence": "The Thermostat Device directly controls the home's HVAC Unit based on the current target temperature."
           },
           {
             "id": "weather_api",
             "label": "Weather API",
-            "type": "external_system"
+            "type": "external_system",
+            "evidence": "The Cloud Backend queries the Weather API, an external third-party service, to adjust heating/cooling schedules based on forecasted weather."
           },
           {
             "id": "installer_portal",
             "label": "Installer Portal",
-            "type": "component"
+            "type": "component",
+            "evidence": "Installation technicians configure new devices using the Installer Portal, which connects to the Cloud Backend."
           }
         ],
         "relationships": [
           {
             "source_id": "ecothem_mobile_app",
             "target_id": "cloud_backend",
-            "label": "sends_control_commands"
+            "label": "communicates_with",
+            "evidence": "Homeowners control their thermostat remotely through the EcoTherm Mobile App, which communicates with the Cloud Backend over the internet."
+          },
+          {
+            "source_id": "thermostat_device",
+            "target_id": "cloud_backend",
+            "label": "sends_data_to",
+            "evidence": "The Thermostat Device, installed in the home, continuously sends temperature readings to the Cloud Backend and receives updated schedules and target temperatures in return."
           },
           {
             "source_id": "cloud_backend",
             "target_id": "thermostat_device",
-            "label": "sends_schedule_updates"
+            "label": "sends_commands_to",
+            "evidence": "The Thermostat Device, installed in the home, continuously sends temperature readings to the Cloud Backend and receives updated schedules and target temperatures in return."
           },
           {
             "source_id": "thermostat_device",
             "target_id": "hvac_unit",
-            "label": "controls"
+            "label": "controls",
+            "evidence": "The Thermostat Device directly controls the home's HVAC Unit based on the current target temperature."
           },
           {
             "source_id": "cloud_backend",
             "target_id": "weather_api",
-            "label": "queries"
+            "label": "queries",
+            "evidence": "The Cloud Backend queries the Weather API, an external third-party service, to adjust heating/cooling schedules based on forecasted weather."
           },
           {
             "source_id": "installer_portal",
             "target_id": "cloud_backend",
-            "label": "configures_device"
+            "label": "connects_to",
+            "evidence": "Installation technicians configure new devices using the Installer Portal, which connects to the Cloud Backend."
           }
         ],
         "risks": [
           {
             "id": "r1",
             "description": "A Wi-Fi outage at the home prevents the Mobile App from controlling the Thermostat Device remotely.",
-            "severity": "high",
+            "severity": "medium",
             "related_nodes": [
               "ecothem_mobile_app",
               "thermostat_device",
               "cloud_backend"
-            ]
+            ],
+            "evidence": "A Wi-Fi outage at the home prevents the Mobile App from controlling the Thermostat Device remotely."
           },
           {
             "id": "r2",
             "description": "Inaccurate data from the Weather API can cause the system to schedule heating or cooling at the wrong times.",
-            "severity": "medium",
+            "severity": "high",
             "related_nodes": [
-              "weather_api",
               "cloud_backend",
-              "thermostat_device"
-            ]
+              "weather_api"
+            ],
+            "evidence": "Inaccurate data from the Weather API can cause the system to schedule heating or cooling at the wrong times."
           }
         ],
         "assumptions": [
@@ -638,7 +729,8 @@
               "ecothem_mobile_app",
               "thermostat_device",
               "cloud_backend"
-            ]
+            ],
+            "evidence": "The home has a stable Wi-Fi connection."
           },
           {
             "id": "a2",
@@ -646,15 +738,16 @@
             "related_nodes": [
               "thermostat_device",
               "hvac_unit"
-            ]
+            ],
+            "evidence": "The HVAC Unit is compatible with the Thermostat Device's control protocol."
           }
         ]
       },
       "predicted_nodes": [
         {
-          "id": "14220eb1370a",
+          "id": "60bdc8832632",
           "label": "EcoTherm Mobile App",
-          "type": "actor"
+          "type": "component"
         },
         {
           "id": "5448a2d90717",
@@ -684,14 +777,19 @@
       ],
       "predicted_edges": [
         {
-          "source": "14220eb1370a",
+          "source": "60bdc8832632",
           "target": "5448a2d90717",
-          "label": "sends_control_commands"
+          "label": "communicates_with"
+        },
+        {
+          "source": "caa9f9efb398",
+          "target": "5448a2d90717",
+          "label": "sends_data_to"
         },
         {
           "source": "5448a2d90717",
           "target": "caa9f9efb398",
-          "label": "sends_schedule_updates"
+          "label": "sends_commands_to"
         },
         {
           "source": "caa9f9efb398",
@@ -701,12 +799,12 @@
         {
           "source": "5448a2d90717",
           "target": "a3e43f121961",
-          "label": "queries"
+          "label": "calls"
         },
         {
           "source": "c782a3f8bcce",
           "target": "5448a2d90717",
-          "label": "configures_device"
+          "label": "connects_to"
         }
       ],
       "predicted_risks": [
@@ -747,64 +845,86 @@
         "covered": 2,
         "gt_count": 2
       },
+      "evidence_grounding": {
+        "grounded_rate": 1.0,
+        "grounded": 15,
+        "non_empty": 15,
+        "total": 15
+      },
+      "relationship_normalization": {
+        "normalized_rate": 0.8,
+        "normalized": 4,
+        "total": 5
+      },
       "raw_llm_result": {
         "entities": [
           {
             "id": "paylink_mobile_app",
             "label": "PayLink Mobile App",
-            "type": "component"
+            "type": "component",
+            "evidence": "Users initiate money transfers to friends and family through the PayLink Mobile App"
           },
           {
             "id": "transaction_service",
             "label": "Transaction Service",
-            "type": "component"
+            "type": "component",
+            "evidence": "the Transaction Service verifies the user's identity by calling the KYC Provider"
           },
           {
             "id": "kyc_provider",
             "label": "KYC Provider",
-            "type": "external_system"
+            "type": "external_system",
+            "evidence": "the Transaction Service verifies the user's identity by calling the KYC Provider, an external identity verification service"
           },
           {
             "id": "banking_rail",
             "label": "Banking Rail",
-            "type": "external_system"
+            "type": "external_system",
+            "evidence": "the Transaction Service moves funds between accounts via the Banking Rail, an external interbank settlement network"
           },
           {
             "id": "fraud_detection_service",
             "label": "Fraud Detection Service",
-            "type": "component"
+            "type": "component",
+            "evidence": "The Fraud Detection Service monitors every transaction processed by the Transaction Service and flags suspicious activity"
           },
           {
             "id": "compliance_dashboard",
             "label": "Compliance Dashboard",
-            "type": "component"
+            "type": "component",
+            "evidence": "Compliance officers review flagged transactions through the Compliance Dashboard"
           }
         ],
         "relationships": [
           {
             "source_id": "paylink_mobile_app",
             "target_id": "transaction_service",
-            "label": "initiates_transfer"
+            "label": "initiates_transfer",
+            "evidence": "Users initiate money transfers to friends and family through the PayLink Mobile App, which sends transfer requests to the Transaction Service"
           },
           {
             "source_id": "transaction_service",
             "target_id": "kyc_provider",
-            "label": "calls"
+            "label": "calls",
+            "evidence": "Before processing a transfer, the Transaction Service verifies the user's identity by calling the KYC Provider, an external identity verification service"
           },
           {
             "source_id": "transaction_service",
             "target_id": "banking_rail",
-            "label": "transfers_funds_via"
+            "label": "moves_funds_via",
+            "evidence": "Once verified, the Transaction Service moves funds between accounts via the Banking Rail, an external interbank settlement network"
           },
           {
             "source_id": "transaction_service",
             "target_id": "fraud_detection_service",
-            "label": "sends_transaction_to"
+            "label": "sends_transaction_to",
+            "evidence": "The Fraud Detection Service monitors every transaction processed by the Transaction Service and flags suspicious activity"
           },
           {
             "source_id": "fraud_detection_service",
             "target_id": "compliance_dashboard",
-            "label": "flags_for_review_in"
+            "label": "flags_for_review",
+            "evidence": "Compliance officers review flagged transactions through the Compliance Dashboard"
           }
         ],
         "risks": [
@@ -814,7 +934,8 @@
             "severity": "high",
             "related_nodes": [
               "fraud_detection_service"
-            ]
+            ],
+            "evidence": "The Fraud Detection Service may fail to catch a fraudulent transfer (a false negative), allowing money to be stolen."
           },
           {
             "id": "r2",
@@ -822,7 +943,8 @@
             "severity": "high",
             "related_nodes": [
               "banking_rail"
-            ]
+            ],
+            "evidence": "An outage of the Banking Rail delays settlement of transfers."
           }
         ],
         "assumptions": [
@@ -831,15 +953,16 @@
             "description": "The KYC Provider's identity data is accurate and up to date.",
             "related_nodes": [
               "kyc_provider"
-            ]
+            ],
+            "evidence": "The KYC Provider's identity data is accurate and up to date."
           },
           {
             "id": "a2",
             "description": "Users have a verified bank account linked to their PayLink profile.",
             "related_nodes": [
-              "paylink_mobile_app",
-              "transaction_service"
-            ]
+              "paylink_mobile_app"
+            ],
+            "evidence": "Users have a verified bank account linked to their PayLink profile."
           }
         ]
       },
@@ -879,7 +1002,7 @@
         {
           "source": "e8527a4ae69d",
           "target": "36f42f48e269",
-          "label": "initiates_transfer"
+          "label": "calls"
         },
         {
           "source": "36f42f48e269",
@@ -889,17 +1012,17 @@
         {
           "source": "36f42f48e269",
           "target": "4042b5925888",
-          "label": "transfers_funds_via"
+          "label": "moves_funds_via"
         },
         {
           "source": "36f42f48e269",
           "target": "28cb4f95be36",
-          "label": "sends_transaction_to"
+          "label": "sends_to"
         },
         {
           "source": "28cb4f95be36",
           "target": "dc2c58586995",
-          "label": "flags_for_review_in"
+          "label": "reviews"
         }
       ],
       "predicted_risks": [
@@ -915,19 +1038,19 @@
       "case_id": "logistics_fleet_tracking",
       "domain": "logistics / supply chain",
       "entity_scores": {
-        "precision": 1.0,
-        "recall": 0.7777777777777778,
-        "f1": 0.8750000000000001,
-        "matched": 7,
+        "precision": 0.8571428571428571,
+        "recall": 0.6666666666666666,
+        "f1": 0.75,
+        "matched": 6,
         "predicted_count": 7,
         "gt_count": 9
       },
       "relationship_scores": {
-        "precision": 0.8333333333333334,
-        "recall": 0.8333333333333334,
-        "f1": 0.8333333333333334,
-        "matched": 5,
-        "predicted_count": 6,
+        "precision": 0.8,
+        "recall": 0.6666666666666666,
+        "f1": 0.7272727272727272,
+        "matched": 4,
+        "predicted_count": 5,
         "gt_count": 6
       },
       "risk_coverage": {
@@ -940,85 +1063,104 @@
         "covered": 2,
         "gt_count": 2
       },
+      "evidence_grounding": {
+        "grounded_rate": 1.0,
+        "grounded": 16,
+        "non_empty": 16,
+        "total": 16
+      },
+      "relationship_normalization": {
+        "normalized_rate": 0.6,
+        "normalized": 3,
+        "total": 5
+      },
       "raw_llm_result": {
         "entities": [
           {
+            "id": "fleettrace",
+            "label": "FleetTrace",
+            "type": "component",
+            "evidence": "FleetTrace is a delivery fleet tracking system."
+          },
+          {
             "id": "driver_app",
             "label": "Driver App",
-            "type": "component"
+            "type": "component",
+            "evidence": "Drivers use the Driver App on their phones, which continuously sends GPS location data to the Tracking Backend."
           },
           {
             "id": "tracking_backend",
             "label": "Tracking Backend",
-            "type": "component"
+            "type": "component",
+            "evidence": "The Tracking Backend stores each vehicle's route history in the Route Database."
           },
           {
             "id": "route_database",
             "label": "Route Database",
-            "type": "component"
+            "type": "component",
+            "evidence": "The Tracking Backend stores each vehicle's route history in the Route Database."
           },
           {
             "id": "dispatch_dashboard",
             "label": "Dispatch Dashboard",
-            "type": "component"
+            "type": "component",
+            "evidence": "Dispatchers monitor live vehicle locations and delivery progress through the Dispatch Dashboard, which reads from the Tracking Backend."
           },
           {
             "id": "notification_service",
             "label": "Notification Service",
-            "type": "component"
+            "type": "component",
+            "evidence": "When a delivery is near, the Tracking Backend sends an alert through the Notification Service to the customer."
           },
           {
             "id": "traffic_api",
             "label": "Traffic API",
-            "type": "external_system"
-          },
-          {
-            "id": "customer",
-            "label": "customer",
-            "type": "actor"
+            "type": "external_system",
+            "evidence": "The Tracking Backend also queries the Traffic API, an external service, to calculate accurate estimated delivery times."
           }
         ],
         "relationships": [
           {
             "source_id": "driver_app",
             "target_id": "tracking_backend",
-            "label": "sends_location_data"
+            "label": "sends_gps_data",
+            "evidence": "Drivers use the Driver App on their phones, which continuously sends GPS location data to the Tracking Backend."
           },
           {
             "source_id": "tracking_backend",
             "target_id": "route_database",
-            "label": "stores_route_history"
+            "label": "stores_route_history",
+            "evidence": "The Tracking Backend stores each vehicle's route history in the Route Database."
           },
           {
             "source_id": "tracking_backend",
             "target_id": "dispatch_dashboard",
-            "label": "provides_live_data"
+            "label": "provides_live_data",
+            "evidence": "Dispatchers monitor live vehicle locations and delivery progress through the Dispatch Dashboard, which reads from the Tracking Backend."
           },
           {
             "source_id": "tracking_backend",
             "target_id": "notification_service",
-            "label": "triggers_alert"
+            "label": "sends_alert",
+            "evidence": "When a delivery is near, the Tracking Backend sends an alert through the Notification Service to the customer."
           },
           {
             "source_id": "tracking_backend",
             "target_id": "traffic_api",
-            "label": "queries"
-          },
-          {
-            "source_id": "notification_service",
-            "target_id": "customer",
-            "label": "notifies"
+            "label": "queries",
+            "evidence": "The Tracking Backend also queries the Traffic API, an external service, to calculate accurate estimated delivery times."
           }
         ],
         "risks": [
           {
             "id": "r1",
             "description": "GPS signal loss in tunnels or dense urban areas causes inaccurate vehicle tracking.",
-            "severity": "high",
+            "severity": "medium",
             "related_nodes": [
               "driver_app",
               "tracking_backend"
-            ]
+            ],
+            "evidence": "Risks: GPS signal loss in tunnels or dense urban areas causes inaccurate vehicle tracking."
           },
           {
             "id": "r2",
@@ -1027,7 +1169,8 @@
             "related_nodes": [
               "tracking_backend",
               "traffic_api"
-            ]
+            ],
+            "evidence": "Risks: An outage of the Traffic API leads to incorrect estimated delivery times shown to customers."
           }
         ],
         "assumptions": [
@@ -1037,7 +1180,8 @@
             "related_nodes": [
               "driver_app",
               "tracking_backend"
-            ]
+            ],
+            "evidence": "Assumptions: Drivers' phones maintain continuous mobile data connectivity."
           },
           {
             "id": "a2",
@@ -1045,11 +1189,17 @@
             "related_nodes": [
               "driver_app",
               "tracking_backend"
-            ]
+            ],
+            "evidence": "Assumptions: All vehicles are equipped with GPS hardware compatible with the Driver App."
           }
         ]
       },
       "predicted_nodes": [
+        {
+          "id": "268a3123a4a4",
+          "label": "FleetTrace",
+          "type": "component"
+        },
         {
           "id": "fcb3e6b8ba4e",
           "label": "Driver App",
@@ -1079,43 +1229,33 @@
           "id": "7ee2691d6676",
           "label": "Traffic API",
           "type": "external_system"
-        },
-        {
-          "id": "2c12783775fd",
-          "label": "customer",
-          "type": "actor"
         }
       ],
       "predicted_edges": [
         {
           "source": "fcb3e6b8ba4e",
           "target": "0cb30dd669d9",
-          "label": "sends_location_data"
+          "label": "sends_gps_data"
         },
         {
           "source": "0cb30dd669d9",
           "target": "5ae3c03bda3b",
-          "label": "stores_route_history"
+          "label": "stores_in"
         },
         {
           "source": "0cb30dd669d9",
           "target": "4067a80f7f9b",
-          "label": "provides_live_data"
+          "label": "sends_to"
         },
         {
           "source": "0cb30dd669d9",
           "target": "cfb41dfd4764",
-          "label": "triggers_alert"
+          "label": "sends_alert"
         },
         {
           "source": "0cb30dd669d9",
           "target": "7ee2691d6676",
-          "label": "queries"
-        },
-        {
-          "source": "cfb41dfd4764",
-          "target": "2c12783775fd",
-          "label": "notifies"
+          "label": "calls"
         }
       ],
       "predicted_risks": [

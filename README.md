@@ -19,8 +19,8 @@ flowchart LR
     D --> F[Structured JSON<br/>model]
 ```
 
-1. **Extraction** — the input text is sent to an LLM with a strict prompt, using schema-constrained structured output (not free-text JSON parsing) to guarantee a valid shape: entities (actors / internal components / external systems), relationships, risks, and assumptions. A referential-integrity check (every id referenced actually exists) catches what schema validation alone can't, with an automatic retry/repair pass on failure.
-2. **Canonicalization** — extracted entities are deduplicated by normalized label + type (content-addressed IDs), so near-duplicate names don't create orphan nodes.
+1. **Extraction** — the input text is sent to an LLM with a strict prompt, using schema-constrained structured output (not free-text JSON parsing) to guarantee a valid shape: entities (actors / internal components / external systems), relationships, risks, and assumptions, each with the supporting source sentence(s) attached. A referential-integrity check (every id referenced actually exists) catches what schema validation alone can't, with an automatic retry/repair pass on failure.
+2. **Canonicalization** — extracted entities are deduplicated by normalized label + type (content-addressed IDs), so near-duplicate names don't create orphan nodes. Relationship labels (e.g. `streams_to`/`sends_signals_to`/`provides_alerts_to`) are normalized against a small canonical verb set, so the diagram doesn't accumulate inconsistent phrasing for the same kind of connection.
 3. **Deterministic enrichment** — a rule-based layer fills in requirements (functional/non-functional), security & governance controls, and operational concerns, and links risks to the controls that mitigate them. This keeps the output complete and useful even when the LLM's raw extraction is sparse.
 4. **Visualization** — three separate interactive graph views are rendered (via [pyvis](https://pyvis.readthedocs.io/)) instead of one overloaded diagram: a clean architecture/context view, a risk-traceability overlay, and a governance/requirements overlay.
 5. **Caching** — outputs are cached by a hash of (input text + pipeline version), so repeated identical input doesn't re-trigger an LLM call.
@@ -55,21 +55,25 @@ Open `http://127.0.0.1:8000`, paste or upload a system description (see `example
 - A per-session request cap as a built-in cost-control guardrail
 - An evaluation harness (`run_evals.py`) with 5 hand-labeled test cases across varied domains (healthcare, e-commerce, IoT, fintech, logistics) — not just the one reference scenario — measuring entity/relationship extraction quality and risk/assumption coverage against ground truth
 - Schema-constrained structured LLM output (Pydantic + strict JSON schema) with a referential-integrity check and an automatic retry/repair loop, replacing free-text JSON parsing
+- Evidence traceability — every extracted entity/relationship/risk/assumption carries the source sentence(s) it came from, visible as hover tooltips in the diagrams, not just buried in the JSON export
+- Relationship-label normalization against a canonical verb set, built from labels actually observed in practice rather than guessed
 
 ## Evaluation
 
 Extraction quality is measured, not assumed, and changes are measured again after — not just assumed to have helped. `eval_cases.py` holds 5 hand-labeled system descriptions spanning different domains; `run_evals.py` runs the extraction pipeline against each and scores it with fuzzy entity matching (type + token-overlap), relationship-pair matching, and risk/assumption coverage.
 
-Current baseline (macro-average across all 5 cases), after moving to schema-constrained structured output:
+Current baseline (macro-average across all 5 cases), after structured output + evidence traceability + relationship-label normalization:
 
 | Metric | Score |
 |---|---|
 | Entity precision / recall / F1 | 0.97 / 0.77 / 0.86 |
-| Relationship precision / recall / F1 | 0.76 / 0.81 / 0.78 |
+| Relationship precision / recall / F1 | 0.81 / 0.85 / 0.83 |
 | Risk coverage | 1.00 |
 | Assumption coverage | 1.00 |
+| Evidence grounded rate | 1.00 |
+| Relationship label normalized rate | 0.67 |
 
-These numbers moved only slightly from the pre-structured-output baseline — smaller than the run-to-run variance already observed at `temperature=0`, so that move isn't claimed as a real quality change. The actual win from structured output is structural: a whole failure mode (unparseable free-text responses crashing the pipeline) is now impossible by construction, and dangling entity references are caught and auto-repaired instead of silently corrupting the graph downstream.
+Entity scores barely moved from the structured-output baseline — within normal run-to-run noise, not claimed as a real change. Relationship F1 moved more than that noise band (+0.045), but worth being precise about why: the relationship metric only grades whether the (source, target) entity pair was found, never the label text, so label normalization can't be the direct cause — and a dedup-side-effect hypothesis was checked against the actual data and didn't hold up either. The honest attribution is the combined prompt change (now also requesting evidence) plus ordinary variance, not the normalization specifically. What *is* cleanly attributable, since they're brand-new metrics: evidence grounding at 1.00 (every piece of captured evidence genuinely traces back to the source text) and label-normalization coverage at 0.67 (the fixed canonical-verb table, built from real observed labels, covers about two-thirds of what the model actually produces — the honest limitation of a fixed table vs. a costlier second LLM pass).
 
 Run it yourself:
 

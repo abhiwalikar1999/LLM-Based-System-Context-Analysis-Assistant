@@ -15,17 +15,21 @@ Return ONLY valid JSON in this exact format:
 
 {
   "entities": [
-    {"id": "id1", "label": "name", "type": "component|actor|external_system|requirement"}
+    {"id": "id1", "label": "name", "type": "component|actor|external_system|requirement",
+     "evidence": "the sentence(s) from the input text that support this entity"}
   ],
   "relationships": [
-    {"source_id": "id1", "target_id": "id2", "label": "interaction"}
+    {"source_id": "id1", "target_id": "id2", "label": "interaction",
+     "evidence": "the sentence(s) from the input text that support this relationship"}
   ],
   "risks": [
     {"id": "r1", "description": "text", "severity": "low|medium|high",
-     "related_nodes": ["id1"]}
+     "related_nodes": ["id1"],
+     "evidence": "the sentence(s) from the input text that support this risk"}
   ],
   "assumptions": [
-    {"id": "a1", "description": "text", "related_nodes": ["id1"]}
+    {"id": "a1", "description": "text", "related_nodes": ["id1"],
+     "evidence": "the sentence(s) from the input text that support this assumption"}
   ]
 }
 
@@ -36,6 +40,7 @@ Rules:
 - Relationship labels must be short verbs in snake_case.
 - Prefer directional data/control flow from source_id -> target_id.
 - Do not invent components not supported by the text.
+- "evidence" must be copied verbatim or near-verbatim from the input text, not paraphrased or invented. If no specific sentence supports an item, use the shortest exact substring of the input that is most relevant.
 """
 
 MAX_ATTEMPTS = 3
@@ -60,12 +65,14 @@ class Entity(BaseModel):
     id: str
     label: str
     type: Literal["component", "actor", "external_system", "requirement"]
+    evidence: str = ""
 
 
 class Relationship(BaseModel):
     source_id: str
     target_id: str
     label: str
+    evidence: str = ""
 
 
 class Risk(BaseModel):
@@ -73,12 +80,14 @@ class Risk(BaseModel):
     description: str
     severity: Literal["low", "medium", "high"]
     related_nodes: List[str] = []
+    evidence: str = ""
 
 
 class Assumption(BaseModel):
     id: str
     description: str
     related_nodes: List[str] = []
+    evidence: str = ""
 
 
 class ContextExtraction(BaseModel):
