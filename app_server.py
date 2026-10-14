@@ -9,8 +9,13 @@ import urllib.parse
 
 from core import run_pipeline
 
-HOST = "127.0.0.1"
-PORT = 8000
+# Phase 8: configurable via environment variables for container/cloud
+# deployment (e.g. Render sets PORT itself and expects the app to bind
+# 0.0.0.0, not 127.0.0.1). Defaults preserve the original local-dev
+# behavior exactly -- plain `python app_server.py` with no env vars set
+# behaves identically to before this change.
+HOST = os.environ.get("HOST", "127.0.0.1")
+PORT = int(os.environ.get("PORT", "8000"))
 
 MAX_LLM_REQUESTS_PER_SESSION = 10
 SESSION_COOKIE_NAME = "ncw_session"
@@ -188,27 +193,41 @@ def _meter_html(used: int, last_run_used: int | None, cached: bool | None) -> st
 """
 
 
+STATIC_CONTENT_TYPES = {
+    ".html": "text/html; charset=utf-8",
+    ".json": "application/json; charset=utf-8",
+    ".js": "text/javascript; charset=utf-8",
+    ".css": "text/css; charset=utf-8",
+}
+
+
 class Handler(BaseHTTPRequestHandler):
+    def _serve_static(self, prefix: str) -> bool:
+        """Serves a file under `prefix` (e.g. "/output/", "/example_output/")
+        if it exists and has a known extension. Returns True if it handled
+        the request (success or 404), False if `self.path` didn't match
+        `prefix` at all."""
+        if not self.path.startswith(prefix):
+            return False
+        file_path = self.path.lstrip("/")
+        ext = os.path.splitext(file_path)[1]
+        content_type = STATIC_CONTENT_TYPES.get(ext)
+        if content_type and os.path.exists(file_path) and os.path.isfile(file_path):
+            self.send_response(200)
+            self.send_header("Content-Type", content_type)
+            self.end_headers()
+            with open(file_path, "rb") as f:
+                self.wfile.write(f.read())
+            return True
+        self.send_error(404, "File not found")
+        return True
+
     def do_GET(self):
-        # Serve output files
-        if self.path.startswith("/output/"):
-            file_path = self.path.lstrip("/")
-            if os.path.exists(file_path) and os.path.isfile(file_path):
-                if file_path.endswith(".html"):
-                    self.send_response(200)
-                    self.send_header("Content-Type", "text/html; charset=utf-8")
-                    self.end_headers()
-                    with open(file_path, "rb") as f:
-                        self.wfile.write(f.read())
-                    return
-                if file_path.endswith(".json"):
-                    self.send_response(200)
-                    self.send_header("Content-Type", "application/json; charset=utf-8")
-                    self.end_headers()
-                    with open(file_path, "rb") as f:
-                        self.wfile.write(f.read())
-                    return
-            self.send_error(404, "File not found")
+        # Serve generated run outputs, and the bundled pre-generated example
+        # (Phase 8 -- example_output/ ships in the repo/image so a deployed
+        # instance always has something real to show, even where the UPB AI
+        # Gateway itself isn't reachable; see the home page note below).
+        if self._serve_static("/output/") or self._serve_static("/example_output/"):
             return
 
         # Home page
@@ -223,7 +242,14 @@ class Handler(BaseHTTPRequestHandler):
 
 <div class="card">
   <p class="muted">
-    NeuroCardioWatch — AI-assisted System Context Analysis (Local Demo App)
+    NeuroCardioWatch — AI-assisted System Context Analysis
+  </p>
+
+  <p class="muted">
+    <b>Note on live analysis:</b> the LLM backend (UPB AI Gateway) is only reachable from the Paderborn University
+    network/VPN. If you're viewing this deployed instance from elsewhere, clicking Analyze will time out -- that's
+    an access restriction on the backend, not a bug. See the pre-generated example below for real output from this
+    exact pipeline.
   </p>
 
   <form method="POST" action="/analyze" enctype="multipart/form-data">
@@ -238,6 +264,19 @@ class Handler(BaseHTTPRequestHandler):
 
     <button class="btn" type="submit">Analyze</button>
   </form>
+</div>
+
+<div class="card" style="margin-top:16px;">
+  <h3>Example output (pre-generated)</h3>
+  <p class="muted">Real output from this pipeline, run against the hospital EEG/ECG monitoring reference scenario (<code>system_description.txt</code>). No live request needed to view these.</p>
+  <div class="row">
+    <div><a href="/example_output/context_graph.html" target="_blank">context_graph.html</a></div>
+    <div><a href="/example_output/risk_overlay.html" target="_blank">risk_overlay.html</a></div>
+    <div><a href="/example_output/governance_overlay.html" target="_blank">governance_overlay.html</a></div>
+    <div><a href="/example_output/context_model.json" target="_blank">context_model.json</a></div>
+  </div>
+  <h4 style="margin-top:14px;">Preview</h4>
+  <iframe src="/example_output/context_graph.html"></iframe>
 </div>
 """
         self.send_header("Content-Type", "text/html; charset=utf-8")

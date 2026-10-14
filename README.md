@@ -1,5 +1,7 @@
 # LLM-Based System Context Analysis Assistant
 
+[![CI](https://github.com/abhiwalikar1999/LLM-Based-System-Context-Analysis-Assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/abhiwalikar1999/LLM-Based-System-Context-Analysis-Assistant/actions/workflows/ci.yml)
+
 An AI-assisted tool that turns a plain-English system description into an interactive **system-context model**: the actors, components, and external systems involved, how they relate, and what risks/assumptions are implied — extracted automatically by an LLM instead of drawn by hand.
 
 ## The problem
@@ -50,6 +52,13 @@ python app_server.py
 
 Open `http://127.0.0.1:8000`, paste text and/or upload one or more `.txt` files (see `example_system_description.txt` for a sample input describing a hospital patient-monitoring system) — multiple files are treated as separate documents and aggregated into one context model — and click **Analyze**.
 
+**Or with Docker:**
+
+```bash
+docker build -t context-graph-assistant .
+docker run -p 8000:8000 -e UPB_AI_GATEWAY_KEY=your-key-here context-graph-assistant
+```
+
 ## Tests
 
 ```bash
@@ -57,6 +66,14 @@ python -m pytest
 ```
 
 65 unit tests across 5 files, ~1.5s, zero network calls (everything exercised via monkeypatching rather than hitting the real gateway). Covers the deterministic graph logic (deduplication, canonicalization, relationship normalization), the eval harness's own scoring functions, the structured-output schema's validation, and the agentic loop's routing/iteration-cap logic. Largely a formalization of checks this project was already running ad hoc at every phase — see `tests/` for the per-module breakdown.
+
+## Deployment
+
+The app is containerized (`Dockerfile`) with CI (`.github/workflows/ci.yml`) that runs the test suite on every push, then — since there's no Docker available in this project's dev environment — builds the real image on GitHub's runners and smoke-tests the running container (home page serves, bundled example output is reachable from inside the container). That CI run *is* the verification that the Dockerfile actually works, not an assumption.
+
+**A real constraint worth being upfront about:** the LLM backend (UPB AI Gateway) is only reachable from the Paderborn University network/VPN. A publicly hosted instance of this app genuinely cannot reach it — clicking "Analyze" on a public deployment will time out, which is an access restriction on the backend, not a bug in this code. Rather than hide that or ship something that looks broken, the app bundles a real, pre-generated `example_output/` (committed to the repo, not regenerated at request time) that's always viewable without a live call — see the home page's "Example output" section.
+
+Configured for one-step deployment to [Render](https://render.com) via `render.yaml` (a Blueprint): connect this repo in the Render dashboard, set the `UPB_AI_GATEWAY_KEY` secret there (never read from the repo), and Render builds and deploys the Dockerfile automatically. `app_server.py`'s `HOST`/`PORT` read from the environment specifically for this — `0.0.0.0` and Render's injected port, rather than the `127.0.0.1` default used for local runs.
 
 ## What's built
 
@@ -74,6 +91,7 @@ python -m pytest
 - An agentic self-check/repair loop (LangGraph) that reviews its own extraction against the source text and corrects specific, named issues — available as a standalone capability (`agentic.py`), measured, and deliberately not wired in as the default path (see below for the cost/quality tradeoff that decision was based on)
 - A model-comparison harness (`run_evals_model_comparison.py`) that swaps the extraction model and re-runs the full eval suite, measuring quality, latency, and token cost side by side — see below for a finding it caught that a quick manual test completely missed
 - A unit test suite (`tests/`, pytest) for the pure-Python pipeline logic — deduplication, canonicalization, the eval harness's own scoring functions, schema validation, and the agentic loop's routing logic — 65 tests, zero network calls, ~1.5s
+- Dockerized, with CI that builds the real image and smoke-tests the running container on every push (not just "it compiles") — see **Deployment** below
 
 ## Evaluation
 

@@ -1,0 +1,21 @@
+# Phase 8: Render Blueprint. Lets Render auto-configure this service from
+# this file once the GitHub repo is connected -- no manual dashboard
+# click-through needed beyond that connection step itself and setting the
+# one secret below (Render never reads secret values from a committed
+# file; `sync: false` means "this var exists, set its value in the
+# dashboard", not "leave it unset").
+#
+# Render injects its own PORT at runtime, which app_server.py already
+# reads from the environment (see Phase 8's HOST/PORT change) -- no
+# Render-specific code needed beyond that.
+
+services:
+  - type: web
+    name: context-graph-assistant
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    envVars:
+      - key: UPB_AI_GATEWAY_KEY
+        sync: false

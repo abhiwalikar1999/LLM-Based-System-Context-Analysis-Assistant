@@ -1,0 +1,60 @@
+# Phase 8: CI. Two jobs, deliberately separate:
+#
+#   1. `test` -- Phase 7's unit test suite. Fast, free, no network. Runs on
+#      every push/PR.
+#   2. `docker-build` -- only runs if `test` passes. Builds the actual image
+#      (this project has no Docker locally, so this IS the real
+#      verification that the Dockerfile works -- GitHub's runners come
+#      with Docker pre-installed) and smoke-tests the running container:
+#      starts it, confirms the home page serves, and confirms the bundled
+#      example_output/ files are actually reachable from inside the
+#      container (catches a bad COPY/.dockerignore, not just a bad build).
+#
+# Deliberately NOT running the live LLM eval harnesses here (run_evals.py
+# etc.), even though docs/ROADMAP.md's Phase 1 note says "ideally, cost
+# permitting": they need the UPB VPN, which a GitHub-hosted runner has no
+# way to reach, and they'd spend real API calls on every push/PR -- not
+# appropriate for CI that can be triggered by anyone with push access.
+
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt -r requirements-dev.txt
+      - run: python -m pytest -v
+
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t context-graph-assistant:ci .
+      - name: Run container and smoke-test it
+        run: |
+          docker run -d --name smoke -p 8000:8000 context-graph-assistant:ci
+          for i in $(seq 1 15); do
+            if curl -sf http://localhost:8000/ > /dev/null; then
+              echo "server is up"
+              break
+            fi
+            sleep 1
+          done
+          curl -sf http://localhost:8000/ | grep -q "Example output" \
+            || (echo "home page missing expected content" && docker logs smoke && exit 1)
+          curl -sf http://localhost:8000/example_output/context_graph.html > /dev/null \
+            || (echo "bundled example output not reachable from inside the container" && docker logs smoke && exit 1)
+          docker logs smoke
+          docker stop smoke

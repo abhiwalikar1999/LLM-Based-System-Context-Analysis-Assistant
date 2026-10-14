@@ -1,0 +1,242 @@
+{
+  "entities": [
+    {
+      "id": "neurocardiowatch",
+      "label": "NeuroCardioWatch",
+      "type": "component",
+      "evidence": "NeuroCardioWatch is a hospital monitoring solution for continuous acquisition and analysis of EEG and ECG signals."
+    },
+    {
+      "id": "eeg_ecg_sensors",
+      "label": "EEG/ECG sensors",
+      "type": "component",
+      "evidence": "A patient wears EEG/ECG sensors during monitoring."
+    },
+    {
+      "id": "patient_monitoring_device",
+      "label": "Patient Monitoring Device",
+      "type": "component",
+      "evidence": "Sensors transmit signals to a bedside Patient Monitoring Device."
+    },
+    {
+      "id": "streaming_gateway",
+      "label": "Streaming Gateway",
+      "type": "component",
+      "evidence": "The Patient Monitoring Device forwards signals to the Streaming Gateway over the hospital network, and the Streaming Gateway streams signals to the Real-Time Analytics Backend."
+    },
+    {
+      "id": "real_time_analytics_backend",
+      "label": "Real-Time Analytics Backend",
+      "type": "component",
+      "evidence": "The Real-Time Analytics Backend analyzes EEG/ECG streams to detect abnormal events and generates alert events with associated metadata."
+    },
+    {
+      "id": "notification_service",
+      "label": "Notification Service",
+      "type": "component",
+      "evidence": "It triggers the Notification Service, which delivers alerts to nurses and doctors according to configured escalation rules."
+    },
+    {
+      "id": "clinical_monitoring_dashboard",
+      "label": "Clinical Monitoring Dashboard",
+      "type": "component",
+      "evidence": "Nurses and doctors review alert details and trends in the Clinical Monitoring Dashboard and acknowledge/annotate alerts."
+    },
+    {
+      "id": "ehr",
+      "label": "Electronic Health Record (EHR)",
+      "type": "external_system",
+      "evidence": "The Real-Time Analytics Backend stores analysis summaries and alert metadata in the Electronic Health Record (EHR) system."
+    },
+    {
+      "id": "hospital_identity_provider",
+      "label": "Hospital Identity Provider",
+      "type": "external_system",
+      "evidence": "Users of the Clinical Monitoring Dashboard authenticate via the Hospital Identity Provider. The Real-Time Analytics Backend authenticates via the Hospital Identity Provider when accessing protected resources and when writing to the EHR."
+    },
+    {
+      "id": "nurse",
+      "label": "nurse",
+      "type": "actor",
+      "evidence": "Nurses and doctors review alert details and trends in the Clinical Monitoring Dashboard and acknowledge/annotate alerts."
+    },
+    {
+      "id": "doctor",
+      "label": "doctor",
+      "type": "actor",
+      "evidence": "Nurses and doctors review alert details and trends in the Clinical Monitoring Dashboard and acknowledge/annotate alerts."
+    },
+    {
+      "id": "it_administrator",
+      "label": "IT administrator",
+      "type": "actor",
+      "evidence": "IT administrators manage system configuration and user role assignments via the Clinical Monitoring Dashboard, and all security-relevant actions (role changes, data access, alert acknowledgements, exports) are audit-logged."
+    }
+  ],
+  "relationships": [
+    {
+      "source_id": "eeg_ecg_sensors",
+      "target_id": "patient_monitoring_device",
+      "label": "transmits",
+      "evidence": "Sensors transmit signals to a bedside Patient Monitoring Device."
+    },
+    {
+      "source_id": "patient_monitoring_device",
+      "target_id": "streaming_gateway",
+      "label": "forwards",
+      "evidence": "The Patient Monitoring Device forwards signals to the Streaming Gateway over the hospital network, and the Streaming Gateway streams signals to the Real-Time Analytics Backend."
+    },
+    {
+      "source_id": "streaming_gateway",
+      "target_id": "real_time_analytics_backend",
+      "label": "streams",
+      "evidence": "The Patient Monitoring Device forwards signals to the Streaming Gateway over the hospital network, and the Streaming Gateway streams signals to the Real-Time Analytics Backend."
+    },
+    {
+      "source_id": "real_time_analytics_backend",
+      "target_id": "notification_service",
+      "label": "triggers",
+      "evidence": "The Real-Time Analytics Backend analyzes EEG/ECG streams to detect abnormal events and generates alert events with associated metadata. It triggers the Notification Service, which delivers alerts to nurses and doctors according to configured escalation rules."
+    },
+    {
+      "source_id": "real_time_analytics_backend",
+      "target_id": "ehr",
+      "label": "stores",
+      "evidence": "The Real-Time Analytics Backend stores analysis summaries and alert metadata in the Electronic Health Record (EHR) system."
+    },
+    {
+      "source_id": "real_time_analytics_backend",
+      "target_id": "clinical_monitoring_dashboard",
+      "label": "displays",
+      "evidence": "The Real-Time Analytics Backend stores analysis summaries and alert metadata in the Electronic Health Record (EHR) system. Bedside devices (EEG/ECG sensors and the Patient Monitoring Device) do not write to the EHR; EHR writes occur only via the backend. The dashboard displays clinical data and does not bypass backend-controlled authorization when accessing or exporting EHR-relevant summaries."
+    },
+    {
+      "source_id": "clinical_monitoring_dashboard",
+      "target_id": "nurse",
+      "label": "provides",
+      "evidence": "Nurses and doctors review alert details and trends in the Clinical Monitoring Dashboard and acknowledge/annotate alerts."
+    },
+    {
+      "source_id": "clinical_monitoring_dashboard",
+      "target_id": "doctor",
+      "label": "provides",
+      "evidence": "Nurses and doctors review alert details and trends in the Clinical Monitoring Dashboard and acknowledge/annotate alerts."
+    },
+    {
+      "source_id": "clinical_monitoring_dashboard",
+      "target_id": "it_administrator",
+      "label": "enables",
+      "evidence": "IT administrators manage system configuration and user role assignments via the Clinical Monitoring Dashboard, and all security-relevant actions (role changes, data access, alert acknowledgements, exports) are audit-logged."
+    },
+    {
+      "source_id": "clinical_monitoring_dashboard",
+      "target_id": "hospital_identity_provider",
+      "label": "authenticates",
+      "evidence": "Users of the Clinical Monitoring Dashboard authenticate via the Hospital Identity Provider."
+    },
+    {
+      "source_id": "real_time_analytics_backend",
+      "target_id": "hospital_identity_provider",
+      "label": "authenticates",
+      "evidence": "The Real-Time Analytics Backend authenticates via the Hospital Identity Provider when accessing protected resources and when writing to the EHR."
+    }
+  ],
+  "risks": [
+    {
+      "id": "r1",
+      "description": "False positive alerts may lead to alarm fatigue.",
+      "severity": "medium",
+      "related_nodes": [
+        "real_time_analytics_backend",
+        "notification_service",
+        "nurse",
+        "doctor"
+      ],
+      "evidence": "False positive alerts may lead to alarm fatigue."
+    },
+    {
+      "id": "r2",
+      "description": "False negatives may cause missed critical events.",
+      "severity": "high",
+      "related_nodes": [
+        "real_time_analytics_backend"
+      ],
+      "evidence": "False negatives may cause missed critical events."
+    },
+    {
+      "id": "r3",
+      "description": "Network outages may interrupt monitoring and delay alerts.",
+      "severity": "high",
+      "related_nodes": [
+        "streaming_gateway",
+        "real_time_analytics_backend",
+        "notification_service"
+      ],
+      "evidence": "Network outages may interrupt monitoring and delay alerts."
+    },
+    {
+      "id": "r4",
+      "description": "Privacy violations may occur if access controls are misconfigured or data is transmitted insecurely.",
+      "severity": "high",
+      "related_nodes": [
+        "hospital_identity_provider",
+        "ehr",
+        "real_time_analytics_backend",
+        "clinical_monitoring_dashboard"
+      ],
+      "evidence": "Privacy violations may occur if access controls are misconfigured or data is transmitted insecurely."
+    },
+    {
+      "id": "r5",
+      "description": "Delayed response to alerts may cause patient harm.",
+      "severity": "high",
+      "related_nodes": [
+        "nurse",
+        "doctor",
+        "notification_service"
+      ],
+      "evidence": "Delayed response to alerts may cause patient harm."
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "a1",
+      "description": "The hospital network provides reliable connectivity and sufficient bandwidth for continuous streaming.",
+      "related_nodes": [
+        "streaming_gateway",
+        "real_time_analytics_backend"
+      ],
+      "evidence": "The hospital network provides reliable connectivity and sufficient bandwidth for continuous streaming."
+    },
+    {
+      "id": "a2",
+      "description": "Sensors are correctly placed and remain attached during monitoring.",
+      "related_nodes": [
+        "eeg_ecg_sensors",
+        "patient_monitoring_device"
+      ],
+      "evidence": "Sensors are correctly placed and remain attached during monitoring."
+    },
+    {
+      "id": "a3",
+      "description": "Clinicians respond to critical alerts within an acceptable time window.",
+      "related_nodes": [
+        "nurse",
+        "doctor",
+        "notification_service"
+      ],
+      "evidence": "Clinicians respond to critical alerts within an acceptable time window."
+    }
+  ],
+  "_usage": {
+    "prompt_tokens": 833,
+    "completion_tokens": 1820,
+    "total_tokens": 2653
+  },
+  "_retrieval_stats": {
+    "retrieval_activated": false,
+    "total_words": 347,
+    "total_chunks": null,
+    "selected_chunks": null
+  }
+}

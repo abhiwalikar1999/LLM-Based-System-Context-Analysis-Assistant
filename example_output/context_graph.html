@@ -1,0 +1,127 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 900px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#66ff66", "fixed": true, "font": {"color": "#222222"}, "id": "2b5c0c2560cb", "label": "doctor\n(actor)", "margin": 10, "shape": "box", "title": "doctor\n\nEvidence: Nurses and doctors review alert details and trends in the Clinical Monitoring Dashboard and acknowledge/annotate alerts.", "widthConstraint": {"maximum": 340}, "x": -520, "y": 0}, {"color": "#66ff66", "fixed": true, "font": {"color": "#222222"}, "id": "4f1e23b608e6", "label": "doctors\n(actor)", "margin": 10, "shape": "box", "title": "doctors", "widthConstraint": {"maximum": 340}, "x": -520, "y": 180}, {"color": "#66ff66", "fixed": true, "font": {"color": "#222222"}, "id": "5c8b04907bf4", "label": "IT administrator\n(actor)", "margin": 10, "shape": "box", "title": "IT administrator\n\nEvidence: IT administrators manage system configuration and user role assignments via the Clinical Monitoring Dashboard, and all security-relevant actions (role changes, data access, alert acknowledgements, exports) are audit-logged.", "widthConstraint": {"maximum": 340}, "x": -520, "y": 360}, {"color": "#66ff66", "fixed": true, "font": {"color": "#222222"}, "id": "850c52f5e8e9", "label": "IT administrators\n(actor)", "margin": 10, "shape": "box", "title": "IT administrators", "widthConstraint": {"maximum": 340}, "x": -520, "y": 540}, {"color": "#66ff66", "fixed": true, "font": {"color": "#222222"}, "id": "3bc62d35addd", "label": "nurse\n(actor)", "margin": 10, "shape": "box", "title": "nurse\n\nEvidence: Nurses and doctors review alert details and trends in the Clinical Monitoring Dashboard and acknowledge/annotate alerts.", "widthConstraint": {"maximum": 340}, "x": -520, "y": 720}, {"color": "#66ff66", "fixed": true, "font": {"color": "#222222"}, "id": "6937c850e9b8", "label": "nurses\n(actor)", "margin": 10, "shape": "box", "title": "nurses", "widthConstraint": {"maximum": 340}, "x": -520, "y": 900}, {"color": "#4da6ff", "fixed": true, "font": {"color": "#222222"}, "id": "52cae2f994fb", "label": "Audit Logging Service\n(component)", "margin": 10, "shape": "box", "title": "Audit Logging Service", "widthConstraint": {"maximum": 340}, "x": 0, "y": 0}, {"color": "#4da6ff", "fixed": true, "font": {"color": "#222222"}, "id": "e223cc1275a5", "label": "Clinical Monitoring Dashboard\n(component)", "margin": 10, "shape": "box", "title": "Clinical Monitoring Dashboard\n\nEvidence: Nurses and doctors review alert details and trends in the Clinical Monitoring Dashboard and acknowledge/annotate alerts.", "widthConstraint": {"maximum": 340}, "x": 0, "y": 180}, {"color": "#4da6ff", "fixed": true, "font": {"color": "#222222"}, "id": "a03ef89c1a43", "label": "EEG/ECG sensors\n(component)", "margin": 10, "shape": "box", "title": "EEG/ECG sensors\n\nEvidence: A patient wears EEG/ECG sensors during monitoring.", "widthConstraint": {"maximum": 340}, "x": 0, "y": 360}, {"color": "#4da6ff", "fixed": true, "font": {"color": "#222222"}, "id": "574a51940dbe", "label": "Incident Response (on-call/runbooks)\n(component)", "margin": 10, "shape": "box", "title": "Incident Response (on-call/runbooks)", "widthConstraint": {"maximum": 340}, "x": 0, "y": 540}, {"color": "#4da6ff", "fixed": true, "font": {"color": "#222222"}, "id": "e6fff07dba89", "label": "Maintenance \u0026 Change Management\n(component)", "margin": 10, "shape": "box", "title": "Maintenance \u0026 Change Management", "widthConstraint": {"maximum": 340}, "x": 0, "y": 720}, {"color": "#4da6ff", "fixed": true, "font": {"color": "#222222"}, "id": "85c6aaf57758", "label": "Model Lifecycle Management (validation/rollback)\n(component)", "margin": 10, "shape": "box", "title": "Model Lifecycle Management (validation/rollback)", "widthConstraint": {"maximum": 340}, "x": 0, "y": 900}, {"color": "#4da6ff", "fixed": true, "font": {"color": "#222222"}, "id": "ed26bd30f441", "label": "Monitoring \u0026 Observability (metrics/logs/traces)\n(component)", "margin": 10, "shape": "box", "title": "Monitoring \u0026 Observability (metrics/logs/traces)", "widthConstraint": {"maximum": 340}, "x": 0, "y": 1080}, {"color": "#4da6ff", "fixed": true, "font": {"color": "#222222"}, "id": "cfb41dfd4764", "label": "Notification Service\n(component)", "margin": 10, "shape": "box", "title": "Notification Service\n\nEvidence: It triggers the Notification Service, which delivers alerts to nurses and doctors according to configured escalation rules.", "widthConstraint": {"maximum": 340}, "x": 0, "y": 1260}, {"color": "#4da6ff", "fixed": true, "font": {"color": "#222222"}, "id": "e218b1e104f3", "label": "Operations \u0026 Lifecycle\n(component)", "margin": 10, "shape": "box", "title": "Operations \u0026 Lifecycle", "widthConstraint": {"maximum": 340}, "x": 0, "y": 1440}, {"color": "#4da6ff", "fixed": true, "font": {"color": "#222222"}, "id": "55e52d06e8b4", "label": "Patient Monitoring Device\n(component)", "margin": 10, "shape": "box", "title": "Patient Monitoring Device\n\nEvidence: Sensors transmit signals to a bedside Patient Monitoring Device.", "widthConstraint": {"maximum": 340}, "x": 0, "y": 1620}, {"color": "#4da6ff", "fixed": true, "font": {"color": "#222222"}, "id": "bbe619e26bb3", "label": "Real-Time Analytics Backend\n(component)", "margin": 10, "shape": "box", "title": "Real-Time Analytics Backend\n\nEvidence: The Real-Time Analytics Backend analyzes EEG/ECG streams to detect abnormal events and generates alert events with associated metadata.", "widthConstraint": {"maximum": 340}, "x": 0, "y": 1800}, {"color": "#4da6ff", "fixed": true, "font": {"color": "#222222"}, "id": "134aae120207", "label": "Streaming Gateway\n(component)", "margin": 10, "shape": "box", "title": "Streaming Gateway\n\nEvidence: The Patient Monitoring Device forwards signals to the Streaming Gateway over the hospital network, and the Streaming Gateway streams signals to the Real-Time Analytics Backend.", "widthConstraint": {"maximum": 340}, "x": 0, "y": 1980}, {"color": "#4da6ff", "fixed": true, "font": {"color": "#222222"}, "id": "2e447c941af9", "label": "Time-Series Clinical Data Store\n(component)", "margin": 10, "shape": "box", "title": "Time-Series Clinical Data Store", "widthConstraint": {"maximum": 340}, "x": 0, "y": 2160}, {"color": "#ff6666", "fixed": true, "font": {"color": "#222222"}, "id": "d73212540798", "label": "Electronic Health Record (EHR)\n(external_system)", "margin": 10, "shape": "box", "title": "Electronic Health Record (EHR)\n\nEvidence: The Real-Time Analytics Backend stores analysis summaries and alert metadata in the Electronic Health Record (EHR) system.", "widthConstraint": {"maximum": 340}, "x": 520, "y": 0}, {"color": "#ff6666", "fixed": true, "font": {"color": "#222222"}, "id": "a3673979b1c1", "label": "Electronic Health Record (EHR) system\n(external_system)", "margin": 10, "shape": "box", "title": "Electronic Health Record (EHR) system", "widthConstraint": {"maximum": 340}, "x": 520, "y": 180}, {"color": "#ff6666", "fixed": true, "font": {"color": "#222222"}, "id": "bd2ac696c4b6", "label": "Hospital Identity Provider\n(external_system)", "margin": 10, "shape": "box", "title": "Hospital Identity Provider\n\nEvidence: Users of the Clinical Monitoring Dashboard authenticate via the Hospital Identity Provider. The Real-Time Analytics Backend authenticates via the Hospital Identity Provider when accessing protected resources and when writing to the EHR.", "widthConstraint": {"maximum": 340}, "x": 520, "y": 360}]);
+                  edges = new vis.DataSet([{"arrows": "to", "from": "a03ef89c1a43", "title": "sends_to\n\nEvidence: Sensors transmit signals to a bedside Patient Monitoring Device.", "to": "55e52d06e8b4"}, {"arrows": "to", "from": "55e52d06e8b4", "title": "sends_to\n\nEvidence: The Patient Monitoring Device forwards signals to the Streaming Gateway over the hospital network, and the Streaming Gateway streams signals to the Real-Time Analytics Backend.", "to": "134aae120207"}, {"arrows": "to", "from": "134aae120207", "title": "sends_to\n\nEvidence: The Patient Monitoring Device forwards signals to the Streaming Gateway over the hospital network, and the Streaming Gateway streams signals to the Real-Time Analytics Backend.", "to": "bbe619e26bb3"}, {"arrows": "to", "from": "bbe619e26bb3", "title": "triggers\n\nEvidence: The Real-Time Analytics Backend analyzes EEG/ECG streams to detect abnormal events and generates alert events with associated metadata. It triggers the Notification Service, which delivers alerts to nurses and doctors according to configured escalation rules.", "to": "cfb41dfd4764"}, {"arrows": "to", "from": "bbe619e26bb3", "title": "stores_in\n\nEvidence: The Real-Time Analytics Backend stores analysis summaries and alert metadata in the Electronic Health Record (EHR) system.", "to": "d73212540798"}, {"arrows": "to", "from": "bbe619e26bb3", "title": "displays\n\nEvidence: The Real-Time Analytics Backend stores analysis summaries and alert metadata in the Electronic Health Record (EHR) system. Bedside devices (EEG/ECG sensors and the Patient Monitoring Device) do not write to the EHR; EHR writes occur only via the backend. The dashboard displays clinical data and does not bypass backend-controlled authorization when accessing or exporting EHR-relevant summaries.", "to": "e223cc1275a5"}, {"arrows": "to", "from": "e223cc1275a5", "title": "sends_to\n\nEvidence: Nurses and doctors review alert details and trends in the Clinical Monitoring Dashboard and acknowledge/annotate alerts.", "to": "3bc62d35addd"}, {"arrows": "to", "from": "e223cc1275a5", "title": "sends_to\n\nEvidence: Nurses and doctors review alert details and trends in the Clinical Monitoring Dashboard and acknowledge/annotate alerts.", "to": "2b5c0c2560cb"}, {"arrows": "to", "from": "e223cc1275a5", "title": "enables\n\nEvidence: IT administrators manage system configuration and user role assignments via the Clinical Monitoring Dashboard, and all security-relevant actions (role changes, data access, alert acknowledgements, exports) are audit-logged.", "to": "5c8b04907bf4"}, {"arrows": "to", "from": "e223cc1275a5", "title": "authenticates_via\n\nEvidence: Users of the Clinical Monitoring Dashboard authenticate via the Hospital Identity Provider.", "to": "bd2ac696c4b6"}, {"arrows": "to", "from": "bbe619e26bb3", "title": "authenticates_via\n\nEvidence: The Real-Time Analytics Backend authenticates via the Hospital Identity Provider when accessing protected resources and when writing to the EHR.", "to": "bd2ac696c4b6"}, {"arrows": "to", "from": "a03ef89c1a43", "title": "measures", "to": "55e52d06e8b4"}, {"arrows": "to", "from": "55e52d06e8b4", "title": "forwards", "to": "134aae120207"}, {"arrows": "to", "from": "134aae120207", "title": "streams", "to": "bbe619e26bb3"}, {"arrows": "to", "from": "bbe619e26bb3", "title": "triggers_alerts", "to": "cfb41dfd4764"}, {"arrows": "to", "from": "cfb41dfd4764", "title": "notifies", "to": "6937c850e9b8"}, {"arrows": "to", "from": "cfb41dfd4764", "title": "notifies", "to": "4f1e23b608e6"}, {"arrows": "to", "from": "6937c850e9b8", "title": "reviews_alerts", "to": "e223cc1275a5"}, {"arrows": "to", "from": "4f1e23b608e6", "title": "reviews_alerts", "to": "e223cc1275a5"}, {"arrows": "to", "from": "6937c850e9b8", "title": "acknowledges_alert", "to": "e223cc1275a5"}, {"arrows": "to", "from": "4f1e23b608e6", "title": "acknowledges_alert", "to": "e223cc1275a5"}, {"arrows": "to", "from": "bbe619e26bb3", "title": "writes_summaries_to", "to": "a3673979b1c1"}, {"arrows": "to", "from": "55e52d06e8b4", "title": "does_not_write_to", "to": "a3673979b1c1"}, {"arrows": "to", "from": "850c52f5e8e9", "title": "manages_config_and_RBAC", "to": "e223cc1275a5"}, {"arrows": "to", "from": "134aae120207", "title": "stores_raw_stream", "to": "2e447c941af9"}, {"arrows": "to", "from": "bbe619e26bb3", "title": "stores_features_events", "to": "2e447c941af9"}, {"arrows": "to", "from": "e223cc1275a5", "title": "logs_actions", "to": "52cae2f994fb"}, {"arrows": "to", "from": "cfb41dfd4764", "title": "logs_delivery", "to": "52cae2f994fb"}, {"arrows": "to", "from": "bbe619e26bb3", "title": "logs_inference_alerts", "to": "52cae2f994fb"}, {"arrows": "to", "from": "e218b1e104f3", "title": "includes", "to": "ed26bd30f441"}, {"arrows": "to", "from": "e218b1e104f3", "title": "includes", "to": "574a51940dbe"}, {"arrows": "to", "from": "e218b1e104f3", "title": "includes", "to": "e6fff07dba89"}, {"arrows": "to", "from": "e218b1e104f3", "title": "includes", "to": "85c6aaf57758"}, {"arrows": "to", "from": "ed26bd30f441", "title": "monitors", "to": "134aae120207"}, {"arrows": "to", "from": "ed26bd30f441", "title": "monitors", "to": "bbe619e26bb3"}, {"arrows": "to", "from": "ed26bd30f441", "title": "monitors", "to": "cfb41dfd4764"}, {"arrows": "to", "from": "ed26bd30f441", "title": "monitors", "to": "e223cc1275a5"}, {"arrows": "to", "from": "574a51940dbe", "title": "responds_to_failures", "to": "cfb41dfd4764"}, {"arrows": "to", "from": "574a51940dbe", "title": "handles_incidents", "to": "bbe619e26bb3"}, {"arrows": "to", "from": "e6fff07dba89", "title": "administers", "to": "e223cc1275a5"}, {"arrows": "to", "from": "e6fff07dba89", "title": "deploys_updates_to", "to": "bbe619e26bb3"}, {"arrows": "to", "from": "85c6aaf57758", "title": "manages_models_for", "to": "bbe619e26bb3"}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"physics": {"enabled": false}, "edges": {"arrows": {"to": {"enabled": true}}, "smooth": {"type": "cubicBezier", "forceDirection": "horizontal", "roundness": 0.2}, "font": {"size": 0}}, "nodes": {"shape": "box", "margin": 10, "font": {"size": 16}}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

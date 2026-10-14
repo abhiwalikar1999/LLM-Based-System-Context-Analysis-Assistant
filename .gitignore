@@ -2,9 +2,10 @@
 UPB_AI_GATEWAY_KEY.txt
 .env
 
-# Generated app output
+# Generated app output (root-anchored: /lib/ only, not example_output/lib/,
+# which is a committed asset, not generated)
 output/
-lib/
+/lib/
 
 # Python
 __pycache__/

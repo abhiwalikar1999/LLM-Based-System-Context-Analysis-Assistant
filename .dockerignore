@@ -1,0 +1,22 @@
+# Secrets -- never bake the key into the image; it's passed at runtime.
+UPB_AI_GATEWAY_KEY.txt
+
+# Generated/cache, not needed in the image
+output/
+lib/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Local dev environment
+.venv/
+venv/
+
+# Dev-only, not needed to run the app
+requirements-dev.txt
+tests/
+eval_results/
+
+# OS
+.DS_Store
+Thumbs.db
