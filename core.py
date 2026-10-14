@@ -173,24 +173,15 @@ def dedupe_edges(edges: List[Edge]) -> List[Edge]:
 # LLM -- base graph 
 
 
-def build_context_graph(doc_text: Union[str, List[Tuple[str, str]]]) -> Tuple[dict, ContextGraph]:
+def canonicalize_extraction(result: dict) -> ContextGraph:
     """
-    doc_text: either a single input string (existing behavior, unchanged),
-    or a list of (document_label, document_text) pairs for multi-document
-    input (Phase 4). A plain string is wrapped as a single-document list
-    internally, so every call site from before Phase 4 keeps working
-    identically -- retrieval only activates once the combined word count
-    passes retrieval.SIZE_THRESHOLD_WORDS (see retrieval.py), well above
-    any of this project's existing single-document eval cases.
+    Factored out of build_context_graph (Phase 5) so Phase 5's repair step
+    can rebuild a ContextGraph from a corrected extraction dict without
+    re-running retrieval/extraction or duplicating this logic.
 
     Canonicalize LLM entities by (label,type) so near-duplicates don't create orphan nodes.
     Rewrites relationship endpoints and risk/assumption related_nodes to canonical ids.
     """
-    documents = [("input", doc_text)] if isinstance(doc_text, str) else doc_text
-    selected_text, retrieval_stats = retrieve_relevant_chunks(documents)
-
-    result = ask_chatgpt(selected_text)
-    result["_retrieval_stats"] = retrieval_stats
     graph = ContextGraph()
     id_map: Dict[str, str] = {}
 
@@ -226,6 +217,25 @@ def build_context_graph(doc_text: Union[str, List[Tuple[str, str]]]) -> Tuple[di
         ))
 
     graph.edges = dedupe_edges(graph.edges)
+    return graph
+
+
+def build_context_graph(doc_text: Union[str, List[Tuple[str, str]]]) -> Tuple[dict, ContextGraph]:
+    """
+    doc_text: either a single input string (existing behavior, unchanged),
+    or a list of (document_label, document_text) pairs for multi-document
+    input (Phase 4). A plain string is wrapped as a single-document list
+    internally, so every call site from before Phase 4 keeps working
+    identically -- retrieval only activates once the combined word count
+    passes retrieval.SIZE_THRESHOLD_WORDS (see retrieval.py), well above
+    any of this project's existing single-document eval cases.
+    """
+    documents = [("input", doc_text)] if isinstance(doc_text, str) else doc_text
+    selected_text, retrieval_stats = retrieve_relevant_chunks(documents)
+
+    result = ask_chatgpt(selected_text)
+    result["_retrieval_stats"] = retrieval_stats
+    graph = canonicalize_extraction(result)
     return result, graph
 
 

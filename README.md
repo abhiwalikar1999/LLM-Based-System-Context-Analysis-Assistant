@@ -27,6 +27,8 @@ flowchart LR
 5. **Visualization** — three separate interactive graph views are rendered (via [pyvis](https://pyvis.readthedocs.io/)) instead of one overloaded diagram: a clean architecture/context view, a risk-traceability overlay, and a governance/requirements overlay.
 6. **Caching** — outputs are cached by a hash of (input documents + pipeline version), so repeated identical input doesn't re-trigger an LLM call.
 
+A separate, opt-in **agentic validation loop** (`agentic.py`, LangGraph) wraps steps 1–2 with a self-check: `extract → critique → repair → critique...` until clean or a 3-round cap. Not wired in as the default path — see **Agentic validation loop** below for why.
+
 ## Tech stack
 
 Python, a plain `http.server`-based backend (no web framework, by design), an OpenAI-compatible LLM API client, and `pyvis`/`vis-network` for the graph visualizations.
@@ -60,6 +62,7 @@ Open `http://127.0.0.1:8000`, paste text and/or upload one or more `.txt` files 
 - Evidence traceability — every extracted entity/relationship/risk/assumption carries the source sentence(s) it came from, visible as hover tooltips in the diagrams, not just buried in the JSON export
 - Relationship-label normalization against a canonical verb set, built from labels actually observed in practice rather than guessed
 - Multi-document input with retrieval — upload several files at once; each is chunked, embedded, and the most relevant chunks per extraction category are selected via cosine similarity rather than concatenating everything into one prompt
+- An agentic self-check/repair loop (LangGraph) that reviews its own extraction against the source text and corrects specific, named issues — available as a standalone capability (`agentic.py`), measured, and deliberately not wired in as the default path (see below for the cost/quality tradeoff that decision was based on)
 
 ## Evaluation
 
@@ -85,3 +88,25 @@ python run_evals.py
 ```
 
 Full methodology and per-case findings are documented in the script's header comments and `eval_cases.py`.
+
+## Agentic validation loop
+
+`agentic.py` implements a second, opt-in pipeline using [LangGraph](https://github.com/langchain-ai/langgraph): `extract → critique → repair → critique...` until the critique pass finds nothing wrong, or a 3-round cap is hit. Critique checks for 3 concrete, checkable issue types — missing actors, invented relationships, contradictions — using the same structured-output approach as the main pipeline, not free-text review.
+
+Ran it against the same 6 eval cases (`run_evals_agentic.py`) and compared against the plain pipeline:
+
+| Metric | Plain | Agentic | Delta |
+|---|---|---|---|
+| Entity F1 | 0.879 | 0.924 | **+0.045** |
+| Relationship F1 | 0.820 | 0.824 | +0.004 (flat) |
+| Avg. LLM calls per analysis | 1.0 | 4.7× | — |
+
+The entity-recall gain is real and traceable, not a lucky score movement: in every case that triggered a repair, the fix was a previously-missing actor entity getting added back — the exact failure mode this project has documented since its very first connectivity test. The cost is real too: ~4.7× more LLM calls on average, with a worst case of 8 calls and ~5.5 minutes for one multi-document analysis. One case converged cleanly after 3 rounds; another plateaued at the same 3 unresolved issues for all 3 rounds without ever reaching clean — concrete evidence the iteration cap is a necessary safeguard, not just caution.
+
+Given that cost profile, it's **not** wired in as the app's default path — that would need a considered redesign of the session request-budget accounting this project's guardrails weren't built around. It's available and fully tested as its own capability.
+
+Run it yourself:
+
+```bash
+python run_evals_agentic.py
+```
