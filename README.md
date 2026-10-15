@@ -10,6 +10,21 @@ An AI-assisted tool that turns a plain-English system description into an intera
 
 Early in designing any non-trivial system, you need a shared picture of its context: who's involved, what talks to what, where the system boundary is, what could go wrong. Normally someone draws this by hand from a requirements document, and it's stale by the next meeting. This project explores using an LLM to extract that context model directly from text — and keep it current as the description evolves.
 
+## Approach
+
+The organizing principle behind every change here: measure before changing anything, then measure again after. A 6-case hand-labeled evaluation harness was built *before* any pipeline change, not retrofitted afterward to look rigorous — every later addition (structured outputs, evidence traceability, retrieval, an agentic self-check loop, a head-to-head model comparison) was re-run against that same harness, and the numbers below are reported as measured, including the ones that weren't flattering. A smaller, faster-looking model turned out to produce zero usable output on the real task — a finding only the eval harness caught, since a quick manual test of the same model had looked fine. An agentic self-check loop that measurably improved entity recall also cost ~4.7× more per analysis, which is exactly why it isn't the default path. The goal throughout was a defensible before/after story, not a flattering one.
+
+## Results at a glance
+
+| | |
+|---|---|
+| **Baseline extraction quality** (6 hand-labeled cases, varied domains) | Entity F1 0.88 · Relationship F1 0.82 · Evidence grounding 1.00 |
+| **Agentic self-check loop** vs. the plain pipeline | Entity F1 **+0.045**, traced to real fixes (not luck) — at **~4.7×** the LLM calls, so not shipped as the default |
+| **Model comparison**: default vs. a smaller alternative | Alternative was 4.6× faster at equal token cost, but scored **0.00** on the core task — caught by the eval harness, missed by a quick manual test |
+| **Software quality** | 65 unit tests, 0 network calls, CI on every push (tests + a real Docker build + container smoke-test) |
+
+Full methodology, raw numbers, and the investigation behind each finding are in the sections below.
+
 ## How it works
 
 ```mermaid
