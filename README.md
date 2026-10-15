@@ -2,6 +2,8 @@
 
 [![CI](https://github.com/abhiwalikar1999/LLM-Based-System-Context-Analysis-Assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/abhiwalikar1999/LLM-Based-System-Context-Analysis-Assistant/actions/workflows/ci.yml)
 
+**Live demo:** [context-graph-assistant.onrender.com](https://context-graph-assistant.onrender.com) — see the **Deployment** section below for why the live "Analyze" button won't produce new results (the real, pre-generated example output on that page will).
+
 An AI-assisted tool that turns a plain-English system description into an interactive **system-context model**: the actors, components, and external systems involved, how they relate, and what risks/assumptions are implied — extracted automatically by an LLM instead of drawn by hand.
 
 ## The problem
@@ -73,7 +75,9 @@ The app is containerized (`Dockerfile`) with CI (`.github/workflows/ci.yml`) tha
 
 **A real constraint worth being upfront about:** the LLM backend (UPB AI Gateway) is only reachable from the Paderborn University network/VPN. A publicly hosted instance of this app genuinely cannot reach it — clicking "Analyze" on a public deployment will time out, which is an access restriction on the backend, not a bug in this code. Rather than hide that or ship something that looks broken, the app bundles a real, pre-generated `example_output/` (committed to the repo, not regenerated at request time) that's always viewable without a live call — see the home page's "Example output" section.
 
-Configured for one-step deployment to [Render](https://render.com) via `render.yaml` (a Blueprint): connect this repo in the Render dashboard, set the `UPB_AI_GATEWAY_KEY` secret there (never read from the repo), and Render builds and deploys the Dockerfile automatically. `app_server.py`'s `HOST`/`PORT` read from the environment specifically for this — `0.0.0.0` and Render's injected port, rather than the `127.0.0.1` default used for local runs.
+Deployed to [Render](https://render.com) via `render.yaml` (a Blueprint) — **[context-graph-assistant.onrender.com](https://context-graph-assistant.onrender.com)**. Render builds and deploys the Dockerfile directly from this repo on every push; the one secret (`UPB_AI_GATEWAY_KEY`) is set in Render's dashboard, never read from the repo. `app_server.py`'s `HOST`/`PORT` read from the environment specifically for this — `0.0.0.0` and Render's injected port, rather than the `127.0.0.1` default used for local runs.
+
+Worth being precise about one thing: the VPN requirement is about *the server*, not the visitor. Now that the backend calls are made by Render's infrastructure instead of a local machine, no amount of the visitor being on the UPB VPN changes anything — Render's servers aren't on that network and can't be. That's exactly why the bundled example output exists: it's real output, generated once from a VPN-connected run and committed to the repo, so the live page always has something genuine to show.
 
 ## What's built
 
